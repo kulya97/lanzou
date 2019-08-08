@@ -53,7 +53,6 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         login_button.setOnClickListener(this);
         setKey();
     }
-
     private void saveKey(String id, String key) {
         editor = pref.edit();
         editor.putString("id", id);
