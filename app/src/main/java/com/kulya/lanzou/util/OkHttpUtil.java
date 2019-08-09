@@ -22,19 +22,23 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
 public class OkHttpUtil {
     private static OkHttpUtil mHttpUtil;
     private OkHttpClient.Builder mOkHttpClientBuilder;
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;
+    private MyCookieJar cookieJar;
 
     private OkHttpUtil() {
+        cookieJar = new MyCookieJar();
         mOkHttpClientBuilder = new OkHttpClient.Builder();
-        mOkHttpClientBuilder.cookieJar(new MyCookieJar());
+        mOkHttpClientBuilder.cookieJar(cookieJar);
         mOkHttpClient = mOkHttpClientBuilder.build();
         mDelivery = new Handler(Looper.getMainLooper());
     }
-//获取实例
+
+    //获取实例
     private static OkHttpUtil getInstance() {
         if (mHttpUtil == null) {
             synchronized (OkHttpUtil.class) {

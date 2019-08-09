@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.kulya.lanzou.util.FileItem;
 import com.kulya.lanzou.util.HttpUtil;
+import com.kulya.lanzou.util.MyCookieJar;
 import com.kulya.lanzou.util.OkHttpUtil;
 import com.kulya.lanzou.util.UriUtil;
 import com.kulya.lanzou.util.baseactivity;
@@ -139,6 +140,10 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
                     Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
+                }
+                else if (document.getElementsByClass("e_u").text().equals("账号不正确 密码不正确")) {
+                    Toast.makeText(LoginActivity.this, "请检查账号或密码！", Toast.LENGTH_SHORT).show();
+                    MyCookieJar.resetCookies();
                 }
             }
         }, rs);
