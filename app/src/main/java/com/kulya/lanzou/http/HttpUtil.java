@@ -1,4 +1,4 @@
-package com.kulya.lanzou.util;
+package com.kulya.lanzou.http;
 
 import java.util.ArrayList;
 import java.util.HashMap;

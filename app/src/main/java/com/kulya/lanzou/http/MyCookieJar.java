@@ -1,4 +1,4 @@
-package com.kulya.lanzou.util;
+package com.kulya.lanzou.http;
 
 /*
 项目名称： lanzou

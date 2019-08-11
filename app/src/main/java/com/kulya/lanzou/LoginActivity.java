@@ -1,23 +1,20 @@
 package com.kulya.lanzou;
 
-import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.kulya.lanzou.util.FileItem;
-import com.kulya.lanzou.util.HttpUtil;
-import com.kulya.lanzou.util.MyCookieJar;
-import com.kulya.lanzou.util.OkHttpUtil;
-import com.kulya.lanzou.util.UriUtil;
+import com.kulya.lanzou.http.HttpUtil;
+import com.kulya.lanzou.http.MyCookieJar;
+import com.kulya.lanzou.http.OkHttpUtil;
+import com.kulya.lanzou.http.UriUtil;
 import com.kulya.lanzou.util.baseactivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +51,8 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         login_button.setOnClickListener(this);
         setKey();
     }
+
+    //保存密码
     private void saveKey(String id, String key) {
         editor = pref.edit();
         editor.putString("id", id);
@@ -61,14 +60,16 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         editor.apply();
     }
 
+    //自动填写密码
     private void setKey() {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        String username = pref.getString("id", "11");
-        String password = pref.getString("key", "1111");
+        String username = pref.getString("id", "17802531301");
+        String password = pref.getString("key", "1140576864.");
         login_id.setText(username);
         login_key.setText(password);
 
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -78,6 +79,7 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         }
     }
 
+    //登录事件
     private void submit() {
         String id = login_id.getText().toString().trim();
         if (TextUtils.isEmpty(id)) {
@@ -94,7 +96,7 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         getFormHash(id, key);
     }
 
-
+    //获取formhash
     private void getFormHash(final String username, final String password) {
         HttpUtil.loginGet(UriUtil.GETFORMHASH, new Callback() {
             @Override
@@ -113,6 +115,7 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         });
     }
 
+    //登录
     private void login(String formhash, final String username, final String password) {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[6];
         rs[0] = new OkHttpUtil.RequestData("formhash", formhash);
@@ -140,8 +143,7 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
                     Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
-                }
-                else if (document.getElementsByClass("e_u").text().equals("账号不正确 密码不正确")) {
+                } else if (document.getElementsByClass("e_u").text().equals("账号不正确 密码不正确")) {
                     Toast.makeText(LoginActivity.this, "请检查账号或密码！", Toast.LENGTH_SHORT).show();
                     MyCookieJar.resetCookies();
                 }

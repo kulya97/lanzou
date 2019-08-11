@@ -4,15 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/buttonColor"
-
     app:cardCornerRadius="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
+        android:layout_marginHorizontal="10dp"
         android:orientation="vertical"
-        android:padding="30dp">
+        android:padding="10dp">
 
         <TextView
             android:layout_marginBottom="20dp"
@@ -27,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
             android:hint="名称"
-            android:textSize="18dp" />
+            android:textSize="14dp" />
 
         <EditText
             android:id="@+id/description"
@@ -35,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
             android:hint="描述(可不填写)"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
         <Button
             android:id="@+id/newFolder"
             android:layout_width="match_parent"

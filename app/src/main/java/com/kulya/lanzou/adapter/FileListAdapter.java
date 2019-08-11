@@ -1,4 +1,4 @@
-package com.kulya.lanzou.util;
+package com.kulya.lanzou.adapter;
 /*
 项目名称： lanzou
 创建人：黄大神
@@ -11,18 +11,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kulya.lanzou.R;
+import com.kulya.lanzou.util.FileItem;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> implements View.OnClickListener {
+public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> implements View.OnClickListener, View.OnLongClickListener {
     private List<FileItem> mFileList;
     public OnItemClickListener mOnItemClickListener;
+    public OnItemLongClickListener mOnItemLongClickListener;
+
+    //定义接口
+    public interface OnItemClickListener {
+        void ItemClick(View view, int position);
+    }
+
+    public interface OnItemLongClickListener {
+        boolean onLongClick(View view, int position);
+    }
 
     @Override
     public void onClick(View v) {
@@ -31,12 +41,18 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         }
     }
 
-    public interface OnItemClickListener {
-        void ItemClick(View view, int position);
+    @Override
+    public boolean onLongClick(View v) {
+        return mOnItemLongClickListener != null &&
+                mOnItemLongClickListener.onLongClick(v, (Integer) v.getTag());
     }
 
     public void setMOnItemClickListener(OnItemClickListener mOnItemClickListener) {
         this.mOnItemClickListener = mOnItemClickListener;
+    }
+
+    public void setMOnItemLongClickListener(OnItemLongClickListener mOnItemLongClickListener) {
+        this.mOnItemLongClickListener = mOnItemLongClickListener;
 
     }
 
@@ -67,6 +83,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
                 viewGroup, false);
         ViewHolder holder = new ViewHolder(view);
         holder.itemview.setOnClickListener(this);
+        holder.itemview.setOnLongClickListener(this);
         return holder;
     }
 
@@ -74,7 +91,10 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         FileItem item = mFileList.get(i);
-        viewHolder.imageView.setImageResource(item.getSrc());
+        if (item.getFileORHolder() == FileItem.ISFILE)
+            viewHolder.imageView.setImageResource(R.drawable.p2);
+        else if (item.getFileORHolder() == FileItem.ISHOLDER)
+            viewHolder.imageView.setImageResource(R.drawable.p1);
         viewHolder.textView.setText(item.getFilename());
         viewHolder.itemview.setTag(i);
     }
