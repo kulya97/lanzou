@@ -1,8 +1,11 @@
 package com.kulya.lanzou.http;
 
+
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,7 +13,6 @@ import com.kulya.lanzou.MainActivity;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.util.Myapplication;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,9 +22,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.Response;
 
@@ -33,70 +36,57 @@ import okhttp3.Response;
 创建时间：2019/8/30 11:42
 */
 public class HttpWorker {
+    private static HttpWorker mHttpWorker;
 
-    public interface FileHrefCallbackListener {
-        void onError(Exception e);
 
-        void onFinish(String filehref);
+    private HttpWorker() {
+
+    }
+
+    private static HttpWorker getInstance() {
+        if (mHttpWorker == null) {
+            synchronized (OkHttpUtil.class) {
+                if (mHttpWorker == null) {
+                    mHttpWorker = new HttpWorker();
+                }
+            }
+        }
+        return mHttpWorker;
     }
 
     //获取短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
-    public static void downFile(String file_id) {
-        HttpWorker.getFileHref(file_id, new HttpWorker.FileHrefCallbackListener() {
-            @Override
-            public void onError(Exception e) {
+    private void downFile(String file_id) throws IOException, JSONException {
+        //获取短链接
+        String file_href = getFileHrefSync(file_id);
+        Log.d("down1", file_href);
+        //得到key
+        String data = OkHttpUtil.getSyncString(file_href);
+        Log.d("down12", data);
+        Document document = Jsoup.parse(data);
+        Elements element = document.getElementsByClass("ifr2");
+        String linkHref = element.attr("src");
+        Log.d("down12", linkHref);
+        GetDownKey(linkHref);
 
-            }
-
-            @Override
-            public void onFinish(String filehref) {
-                OkHttpUtil.getAsync(filehref, new OkHttpUtil.ResultCallback() {
-                    @Override
-                    public void onError(Call call, Exception e) {
-                        Log.d("down1", "fdf");
-
-                    }
-
-                    @Override
-                    public void onResponse(byte[] response) {
-                        String data = new String(response);
-                        Log.d("down1", data);
-                        Document document = Jsoup.parse(data);
-                        Elements element = document.getElementsByClass("ifr2");
-                        String linkHref = element.attr("src");
-                        Log.d("down1", linkHref);
-                        down2(linkHref);
-                    }
-                });
-            }
-        });
     }
 
     //解析https://www.lanzous.com/？fnadjic_c得到第二个
-    private static void down2(String url) {
+    private void GetDownKey(String url) throws IOException, JSONException {
         final String uri = "https://www.lanzous.com" + url;
-        OkHttpUtil.getAsync(uri, new OkHttpUtil.ResultCallback() {
-            @Override
-            public void onError(Call call, Exception e) {
-                Log.d("down2:", "onError: ");
-            }
-
-            @Override
-            public void onResponse(byte[] response) {
-                String data = new String(response);
-                Log.d("down2:data", data);
-                Document document = Jsoup.parse(data);
-                String str = document.getElementsByTag("script").toString().trim();
-                int a = str.indexOf("sign");
-                int b = str.indexOf("c_c");
-                String dat = str.substring(a + 7, b + 3);
-                Log.d("down234", dat + "chsduic");
-                down3(dat, uri);
-            }
-        });
+        Response data1 = OkHttpUtil.getSync(uri);
+        String data = data1.body().string();
+        Log.d("getdownkey:data", data);
+        Document document = Jsoup.parse(data);
+        String str = document.getElementsByTag("script").toString().trim();
+        int a = str.indexOf("sign");
+        int b = str.indexOf("c_c");
+        String dat = str.substring(a + 7, b + 3);
+        Log.d("down234", dat + "chsduic");
+        GetDownUri(dat, uri);
     }
 
-    private static void down3(String id, String uri) {
+    //得到一级域名
+    private void GetDownUri(String id, String uri) throws IOException, JSONException {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
         rs[0] = new OkHttpUtil.RequestData("action", "downprocess");
         rs[1] = new OkHttpUtil.RequestData("sign", id);
@@ -118,105 +108,306 @@ public class HttpWorker {
         header[12] = new OkHttpUtil.RequestData("sec-fetch-site", "same-origin");
         header[13] = new OkHttpUtil.RequestData("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
         header[14] = new OkHttpUtil.RequestData("x-requested-with", "XMLHttpRequest");
-        OkHttpUtil.postAsync(UriUtil.GETDOWNURI, new OkHttpUtil.ResultCallback() {
-            @Override
-            public void onError(Call call, Exception e) {
-                Log.d("down3:", "onError: ");
+        String data = OkHttpUtil.postSyncString(UriUtil.GETDOWNURI, rs, header);
+        Log.d("down3:data", data);
+        String url = "";
+        JSONObject jsonObject = new JSONArray("[" + data + "]").getJSONObject(0);
+        url = jsonObject.getString("url");
+        url.replace("\\\"", "");
+        Log.d("down3:name0", url);
+        downLoadDatabase(UriUtil.DOWNFILEHEAD + url, UriUtil.DOWNFILEPATH + url);
 
-            }
 
-            @Override
-            public void onResponse(byte[] response) {
-                String data = new String(response);
-                Log.d("down3:data", data);
-                String url = "";
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray("[" + data + "]");
-                    JSONObject jsonObject = jsonArray.getJSONObject(0);
-                    url = jsonObject.getString("url");
-                    url.replace("\\\"", "");
-                    Log.d("down3:name0", url);
-                    downLoadDatabase(UriUtil.DOWNFILEHEAD + url, UriUtil.DOWNFILEPATH + url);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                }
-
-            }
-        }, rs, header);
     }
 
-    //解析长连接并下载
-    private static void downLoadDatabase(String url, String path) {
+    //解析一级域名得到下载链接并下载
+    private void downLoadDatabase(String url, String path) throws IOException {
 
-        HttpUtil.loginGet2(url, path, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //  Log.d("downLoadDatabase", "sdfd");
-            }
+        Response response = HttpUtil.loginGet2(url, path);
+        String downurl = response.request().url().toString();
+        Headers headers = response.headers();
+        String Disposition = headers.get("Content-Disposition");
+        String filename[] = Disposition.split("=");
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        //创建下载任务,downloadUrl就是下载链接
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downurl));
+        //指定下载路径和下载文件名
+        request.setDestinationInExternalPublicDir("1111", filename[1]);
+        //获取下载管理器
+        DownloadManager downloadManager = (DownloadManager) Myapplication.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        downloadManager.enqueue(request);
 
-                String str3 = response.request().url().toString();
-                Log.d("downLoadDatabase", str3);
-
-                Headers headers = response.headers();
-                String Disposition = headers.get("Content-Disposition");
-                String filename[] = Disposition.split("=");
-
-                //创建下载任务,downloadUrl就是下载链接
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(str3));
-                //指定下载路径和下载文件名
-                request.setDestinationInExternalPublicDir("1111", filename[1]);
-                //获取下载管理器
-                DownloadManager downloadManager = (DownloadManager) Myapplication.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-                downloadManager.enqueue(request);
-
-
-            }
-        });
     }
 
-    //task22 获取文件id
-    public static void getFileHref(String file_id, final FileHrefCallbackListener listener) {
+    //创建页面，文件夹数据
+    private List<FileItem> UpdatePageSync(final String uri) throws IOException, JSONException {
+        List<FileItem> list = new ArrayList<>();
+        list.clear();
+
+        String data = OkHttpUtil.getSyncString(uri);
+        Document document = Jsoup.parse(data);
+        Log.d("888", data);
+        Elements element = document.getElementsByClass("f_name2");
+        for (Element link : element) {
+            String filename = link.text().trim().replace("修", "");
+            String linkHref = link.select("a").attr("href");
+            list.add(new FileItem(filename, FileItem.ISHOLDER, linkHref));
+            Log.d("jump:linkHref", linkHref);
+        }
+
+        String folder_ids[] = uri.split("=");
+        String folder_id = folder_ids[folder_ids.length - 1];
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
+        rs[0] = new OkHttpUtil.RequestData("task", "5");
+        rs[1] = new OkHttpUtil.RequestData("folder_id", folder_id);
+        rs[2] = new OkHttpUtil.RequestData("pg", "1");//页数
+        String data2 = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+        Log.d("8881", data2);
+        String ss = data2.substring(data2.indexOf("["), data2.indexOf("]") + 1);
+        Log.d("88812", ss);
+        JSONArray jsonArray = new JSONArray(ss);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String name = jsonObject.getString("name_all");
+            String file_id = jsonObject.getString("id");
+            Log.d("getItem:file_id", file_id);
+            Log.d("getItem:file_id", name);
+            list.add(new FileItem(name, FileItem.ISFILE, file_id));
+        }
+        return list;
+    }
+
+    private boolean setNewFolder(String uri, String folder_name, String folder_description) throws IOException, JSONException {
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
+        String folder_ids[] = uri.split("=");
+        String parent_id = folder_ids[folder_ids.length - 1];
+        rs[0] = new OkHttpUtil.RequestData("task", "2");
+        rs[1] = new OkHttpUtil.RequestData("parent_id", parent_id);
+        rs[2] = new OkHttpUtil.RequestData("folder_name", folder_name);
+        rs[3] = new OkHttpUtil.RequestData("folder_description", folder_description);
+        String data = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+        Log.d("setNewFolder:data", data);
+        String info = "";
+        JSONArray jsonArray = new JSONArray("[" + data + "]");
+        JSONObject jsonObject = jsonArray.getJSONObject(0);
+        info = jsonObject.getString("info");
+        Log.d("setNewFolder:name", info);
+        if (info.equals("创建成功")) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getFileHrefSync(String file_id) throws IOException, JSONException {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
         rs[0] = new OkHttpUtil.RequestData("task", "22");
         rs[1] = new OkHttpUtil.RequestData("file_id", file_id);
-        OkHttpUtil.postAsync(UriUtil.GETFILEID, new OkHttpUtil.ResultCallback() {
-            @Override
-            public void onError(Call call, Exception e) {
-                Log.d("downfile:", "onError: ");
-                MyCookieJar.print();
-                listener.onError(e);
-            }
+        String uri = "";
+        String response = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+        Log.d("downfile:f_id1", response);
+        JSONObject jsonObject = new JSONArray("[" + response + "]").getJSONObject(0);
+        String info = jsonObject.getString("info");
+        JSONObject jsonObject2 = new JSONArray("[" + info + "]").getJSONObject(0);
+        String f_id = jsonObject2.getString("f_id");
+        uri = UriUtil.SHAREHEAD + f_id;
+        Log.d("downfile:f_id", uri);
+        return uri;
+    }
 
+    //task3 删除文件夹
+    private boolean folderDelete(String holder_id) throws JSONException, IOException {
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
+        rs[0] = new OkHttpUtil.RequestData("task", "3");
+        rs[1] = new OkHttpUtil.RequestData("folder_id", holder_id);
+        String data = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+        Log.d("deleteHolder:data", data);
+        String info = "";
+        JSONArray jsonArray = new JSONArray("[" + data + "]");
+        JSONObject jsonObject = jsonArray.getJSONObject(0);
+        info = jsonObject.getString("info");
+        Log.d("deleteHolder:name", info);
+        if (info.equals("删除成功")) {
+            return true;
+        }
+        return false;
+
+    }
+
+    //task6 删除文件
+    private boolean fileDelete(String file_id) throws IOException, JSONException {
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
+        rs[0] = new OkHttpUtil.RequestData("task", "6");
+        rs[1] = new OkHttpUtil.RequestData("file_id", file_id);
+        String data = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+        Log.d("deletefile:data", data);
+        String info = "";
+        JSONArray jsonArray = new JSONArray("[" + data + "]");
+        JSONObject jsonObject = jsonArray.getJSONObject(0);
+        info = jsonObject.getString("info");
+        Log.d("deletefile:name", info);
+        if (info.equals("已删除")) {
+            return true;
+        }
+        return false;
+
+    }
+
+    //获取短链接接口
+    public interface FileHrefCallbackListener {
+        void onError(Exception e);
+
+        void onFinish(String file_href);
+    }
+
+    //页面刷新监听接口
+    public interface PageUpdatePageCallbackListener {
+        void onError(Exception e);
+
+        void onFinish(List<FileItem> list);
+    }
+
+    //增删改查监听接口
+    public interface CRUDCallbackListener {
+        void onError(Exception e);
+
+        void onFinish();
+    }
+
+    /*************************************************************************
+     * ***********************************************************************
+     * ***********************************************************************
+     */
+
+    //task22 获取文件短链接
+    public static void getFileHref(final String file_id, final FileHrefCallbackListener listener) {
+        new Thread(new Runnable() {
             @Override
-            public void onResponse(byte[] response) {
-                String data = new String(response);
-                Log.d("downfile:data", data);
-                String f_id = "";
-                String info = "";
-                JSONArray jsonArray = null;
-                JSONArray jsonArray2 = null;
+            public void run() {
                 try {
-                    jsonArray = new JSONArray("[" + data + "]");
-                    JSONObject jsonObject = jsonArray.getJSONObject(0);
-                    info = jsonObject.getString("info");
-                    jsonArray2 = new JSONArray("[" + info + "]");
-                    JSONObject jsonObject2 = jsonArray2.getJSONObject(0);
-                    f_id = jsonObject2.getString("f_id");
-                    String uri = UriUtil.SHAREHEAD + f_id;
-                    Log.d("downfile:f_id", uri);
-                    listener.onFinish(uri);
+                    String href = getInstance().getFileHrefSync(file_id);
+                    listener.onFinish(href);
+                } catch (IOException e) {
+                    listener.onError(e);
+                } catch (JSONException e) {
+                    listener.onError(e);
+                }
+            }
+        }).start();
+
+    }
+
+    //刷新页面
+    public static void UpdatePage(final String uri, final PageUpdatePageCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final List<FileItem> list = getInstance().UpdatePageSync(uri);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (listener != null) {
+                                listener.onFinish(list);
+                            }
+
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     listener.onError(e);
                 }
             }
-        }, rs);
+        }).start();
+
     }
 
+    //创建文件夹
+    public static void AddFolder(final String uri, final String folder_name, final String folder_description, final CRUDCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Boolean aBoolean = getInstance().setNewFolder(uri, folder_name, folder_description);
+                    if (aBoolean) {
+                        listener.onFinish();
+                    } else
+                        listener.onError(new Exception());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                }
+            }
+        }).start();
+    }
+
+    //下载文件
+    public static void FileDown(final String file_id) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getInstance().downFile(file_id);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    //文件删除
+    public static void DeleteFile(final String file_id, final CRUDCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Boolean aBoolean = getInstance().fileDelete(file_id);
+                    if (aBoolean) {
+                        listener.onFinish();
+                    } else
+                        listener.onError(new Exception());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                }
+            }
+        }).start();
+
+    }
+
+    //文件夹删除
+    public static void DeleteFolder(final String folder_id, final CRUDCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Boolean aBoolean = getInstance().folderDelete(folder_id);
+                    if (aBoolean) {
+                        listener.onFinish();
+                    } else
+                        listener.onError(new Exception());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                }
+            }
+        }).start();
+
+    }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 创建时间：2019/8/6 21:09
 */
 public class UriUtil {
-    public static final List<String> HTTPPATHS=new ArrayList<>();
+    public static final List<String> HttpPaths=new ArrayList<>();
     public static final String GETFORMHASH = "https://pc.woozooo.com/account.php?action=login&ref=/mydisk.php";
     public static final String LOGIN = "https://pc.woozooo.com/account.php";
     public static final String HHTPHEAD = "https://pc.woozooo.com/";

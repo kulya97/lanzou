@@ -140,11 +140,11 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
                 String linkText = element.text();
                 Log.d("2222224", linkText);
                 if (linkText.equals("登录成功，欢迎您回来。")) {
-                    Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                 } else if (document.getElementsByClass("e_u").text().equals("账号不正确 密码不正确")) {
-                    Toast.makeText(LoginActivity.this, "请检查账号或密码！", Toast.LENGTH_SHORT).show();
+                //    Toast.makeText(LoginActivity.this, "请检查账号或密码！", Toast.LENGTH_SHORT).show();
                     MyCookieJar.resetCookies();
                 }
             }

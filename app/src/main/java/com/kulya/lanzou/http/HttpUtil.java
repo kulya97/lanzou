@@ -1,6 +1,7 @@
 package com.kulya.lanzou.http;
 
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -16,6 +17,7 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /*
 项目名称： lanzou
@@ -49,7 +51,7 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void loginGet2(String address, String path, okhttp3.Callback callback) {
+    public static Response loginGet2(String address, String path) throws IOException {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.cookieJar(new MyCookieJar());
         builder.sslSocketFactory(createSSLSocketFactory(), new TrustAllCerts());
@@ -69,7 +71,8 @@ public class HttpUtil {
                 .addHeader("accept-language", "zh-CN,zh;q=0.9")
                 .addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36")
                 .build();
-        client.newCall(request).enqueue(callback);
+        return client.newCall(request).execute();
+
     }
 
     private static class TrustAllCerts implements X509TrustManager {
