@@ -1,4 +1,4 @@
-package com.kulya.lanzou.adapter;
+package com.kulya.lanzou.listview;
 /*
 项目名称： lanzou
 创建人：黄大神
@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.kulya.lanzou.R;
-import com.kulya.lanzou.util.FileItem;
 
 import java.util.List;
 
