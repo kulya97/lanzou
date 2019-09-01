@@ -1,6 +1,9 @@
 package com.kulya.lanzou.view;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.Gravity;
@@ -10,10 +13,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.kulya.lanzou.MainActivity;
 import com.kulya.lanzou.R;
 import com.kulya.lanzou.http.HttpWorker;
+import com.kulya.lanzou.util.Myapplication;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,21 +29,21 @@ import androidx.recyclerview.widget.RecyclerView;
 创建时间：2019/8/29 15:21
 */
 public class fileInfoPop extends PopupWindow {
-    public final static int DELETE=0;
-    public final static int DOWNLAOD=1;
+    public final static int DELETE = 0;
+    public final static int DOWNLAOD = 1;
     private Activity mContext;
     private onClick click;
     private View contentView;
     private String file_id;
 
     public interface onClick {
-        void onClick(int num,String file_id);
+        void onClick(int num, String file_id);
     }
 
     public fileInfoPop(Activity mContext, String file_id, onClick click) {
         this.mContext = mContext;
         this.file_id = file_id;
-       this.click = click;
+        this.click = click;
         contentView = LayoutInflater.from(mContext).inflate(R.layout.filetips, null);
         initPop();
         initView();
@@ -61,11 +66,19 @@ public class fileInfoPop extends PopupWindow {
                 href.setText(file_href);
             }
         });
+        href.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager cm = (ClipboardManager) Myapplication.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                cm.setText(href.getText().toString());
+                Toast.makeText(Myapplication.getContext(), "复制成功！", Toast.LENGTH_SHORT).show();
+            }
+        });
         deltefile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("2468", file_id);
-                click.onClick(DELETE,file_id);
+                click.onClick(DELETE, file_id);
                 dismiss();
             }
         });
@@ -73,7 +86,7 @@ public class fileInfoPop extends PopupWindow {
             @Override
             public void onClick(View v) {
                 Log.d("24687", file_id);
-                click.onClick(DOWNLAOD,file_id);
+                click.onClick(DOWNLAOD, file_id);
                 Log.d("24687", "22");
                 dismiss();
             }
