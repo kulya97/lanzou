@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.kulya.lanzou">
 
     <!-- 网络访问权限 -->
@@ -9,22 +10,20 @@
     <application
         android:name=".util.Myapplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".down.DownloadService"
-            android:enabled="true"
-            android:exported="true"></service>
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/ChenJin" />
+            android:theme="@style/ChenJin"
+            />
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/NoTitle">
+            android:theme="@style/NoTitle"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

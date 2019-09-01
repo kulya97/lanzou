@@ -7,16 +7,18 @@ package com.kulya.lanzou.listview;
 创建时间：2019/8/6 19:43
 */
 public class FileItem {
-    public static final int ISFILE=0;
-    public static final int ISHOLDER=1;
+    public static final int ISFILE = 0;
+    public static final int ISHOLDER = 1;
     private String filename;
     private int fileORHolder;
     private String href;
+    private boolean isCheck;
 
     public FileItem(String filename, int fileORHolder, String href) {
         this.filename = filename;
         this.fileORHolder = fileORHolder;
         this.href = href;
+        isCheck = false;
     }
 
     public String getFilename() {
@@ -42,5 +44,13 @@ public class FileItem {
 
     public void setFileORHolder(int fileORHolder) {
         this.fileORHolder = fileORHolder;
+    }
+
+    public boolean getIsCheck() {
+        return isCheck;
+    }
+
+    public void setIsCheck(boolean isCheck) {
+        this.isCheck = isCheck;
     }
 }

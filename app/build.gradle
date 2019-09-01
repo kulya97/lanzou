@@ -6,8 +6,8 @@ android {
         applicationId "com.kulya.lanzou"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,5 +31,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0-beta01'
     implementation 'androidx.cardview:cardview:1.0.0-beta01'
     implementation 'com.google.android.material:material:1.0.0-beta01'
+    implementation 'com.leon:lfilepickerlibrary:1.8.0'
+   // implementation 'com.google.guava:guava:+'
 
 }

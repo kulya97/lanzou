@@ -10,24 +10,24 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.kulya.lanzou.down.DownloadService;
+import com.kulya.lanzou.asyncTask.uploadTask;
 import com.kulya.lanzou.http.HttpWorker;
-import com.kulya.lanzou.http.OkHttpUtil;
 import com.kulya.lanzou.http.UriUtil;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.listview.FileListAdapter;
+import com.kulya.lanzou.util.Myapplication;
 import com.kulya.lanzou.util.activitycollector;
 import com.kulya.lanzou.util.baseactivity;
 import com.kulya.lanzou.view.addFolderPop;
 import com.kulya.lanzou.view.fileInfoPop;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.leon.lfilepickerlibrary.LFilePicker;
+import com.leon.lfilepickerlibrary.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,28 +37,32 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import okhttp3.Call;
 
 public class MainActivity extends baseactivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
     private RecyclerView fileListView;
+    String whitelist[] = new String[]{".doc", ".docx", ".zip", ".rar", ".apk", ".ipa", ".txt",
+            ".exe", ".7z", ".e", ".z", ".ct", ".ke", ".cetrainer", ".db", ".tar", ".pdf", ".w3x",
+            ".epub", ".mobi", ".azw", ".azw3", ".osk", ".osz", ".xpa", ".cpk", ".lua", ".jar",
+            ".dmg", ".ppt", ".pptx", ".xls", ".xlsx", ".mp3", ".ipa", ".iso", ".img", ".gho",
+            ".ttf", ".ttc", ".txf", ".dwg", ".bat", ".dll"};
+    int REQUESTCODE_FROM_ACTIVITY = 1000;
     private List<FileItem> fileList = new ArrayList<>();
     private List<String> history = new ArrayList<>();
     private FileListAdapter adapter;
-    private final static int OPENPACKAGE = 0;
-    private final static int CLOSEPACKAGE = 1;
-    private final static int UPDATEPACKAGE = 2;
+    private boolean ischeck;
     private FloatingActionButton newFolder;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private DownloadService.DownloadBinder downloadBinder;
-    private ServiceConnection connection = new ServiceConnection() {
+    uploadTask.SendCallbackListener listener = new uploadTask.SendCallbackListener() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            downloadBinder = (DownloadService.DownloadBinder) service;
+        public void onError(int[] num) {
+            Toast.makeText(Myapplication.getContext(), "部分文件不可传，已成功" + num[0] + "个", Toast.LENGTH_SHORT).show();
+            RefreshPage();
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-
+        public void onFinish(int[] num) {
+            Toast.makeText(Myapplication.getContext(), num[0] + "个成功，"+num[1] + "个失败", Toast.LENGTH_SHORT).show();
+            RefreshPage();
         }
     };
 
@@ -67,16 +71,71 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        UpdatePage(UriUtil.HOME, OPENPACKAGE);
-        Intent startIntent = new Intent(this, DownloadService.class);
-        startService(startIntent);
-        bindService(startIntent, connection, BIND_AUTO_CREATE);
+        openPage(UriUtil.HOME);
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
+    }
 
+    //设置标题栏菜单
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.titlemenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //标题栏菜单点击事件
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_menu:
+                new addFolderPop(this, new addFolderPop.onClick() {
+                    @Override
+                    public void onClick(String folderName, String folderDescription) {
+                        String uri = history.get(history.size() - 1);
+                        addFolder(uri, folderName, folderDescription);
+                    }
+                });
+                break;
+            case R.id.select_menu:
+                for (FileItem lis : fileList) {
+                    lis.setIsCheck(!ischeck);
+                }
+                ischeck = !ischeck;
+                adapter.notifyDataSetChanged();
+                break;
+            case R.id.delete_menu:
+                for (FileItem lis : fileList) {
+                    if (lis.getIsCheck()) {
+                        if (lis.getFileORHolder() == FileItem.ISFILE) {
+                            deleteFile_(lis.getHref());
+                        } else if (lis.getFileORHolder() == FileItem.ISHOLDER) {
+                            String folder_href = lis.getHref();
+                            String folder_ids[] = folder_href.split("=");
+                            String folder_id = folder_ids[folder_ids.length - 1];
+                            deleteFolder(folder_id);
+                        }
+                    }
+                }
+                break;
+            case R.id.down_menu:
+                for (FileItem lis : fileList) {
+
+                    if (lis.getFileORHolder() == FileItem.ISFILE) {
+                        if (lis.getIsCheck()) {
+                            Log.d("hjy", lis.getFilename());
+                            HttpWorker.FileDown(lis.getHref());
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initView() {
@@ -91,35 +150,45 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         swipeRefreshLayout.setOnRefreshListener(this);
     }
 
-    //重置
-    private void reset() {
-        fileList.clear();
-        history.clear();
-        UpdatePage(UriUtil.HOME, OPENPACKAGE);
-    }
-
     //悬浮按
     // 钮点击事件
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.newFolder:
-                new addFolderPop(this, new addFolderPop.onClick() {
-                    @Override
-                    public void onClick(String folderName, String folderDescription) {
-                        String uri = history.get(history.size() - 1);
-                        addFolder(uri, folderName, folderDescription);
-                    }
-                });
+
+                new LFilePicker()
+                        .withActivity(MainActivity.this)
+                        .withRequestCode(REQUESTCODE_FROM_ACTIVITY)
+                        .withStartPath("/sdcard")
+                        .withIsGreater(false)
+                        .withIconStyle(Constant.ICON_STYLE_YELLOW)
+                        .withFileSize(100000 * 1024)
+                        .withFileFilter(whitelist)
+                        .start();
                 break;
         }
     }
 
-    //list下拉刷新事件
+    //选择文件回调
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUESTCODE_FROM_ACTIVITY) {
+                List<String> list = data.getStringArrayListExtra("paths");
+                String ss[] = history.get(history.size() - 1).split("=");
+                String folder_id = ss[ss.length - 1];
+                new uploadTask(folder_id, listener).execute(list);
+           }
+        }
+    }
+
+    //下拉刷新事件
     @Override
     public void onRefresh() {
         String uri = history.get(history.size() - 1);
-        UpdatePage(uri, OPENPACKAGE);
+        RefreshPage();
         swipeRefreshLayout.setRefreshing(false);
 
     }
@@ -129,26 +198,25 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if (history.size() == 1) {
+                if (history.size() <= 1) {
                     activitycollector.finishall();
                     System.exit(0);
                     return super.onKeyUp(keyCode, event);
                 }
-                String uri = history.get(history.size() - 2);
-                UpdatePage(uri, CLOSEPACKAGE);
+                backPage();
                 return false;
         }
         return super.onKeyUp(keyCode, event);
     }
 
-    //listitem点击事件,唤起详情页
+    //listitem点击事件,打开文件夹，唤起详情页
     class itemOnClick implements FileListAdapter.OnItemClickListener {
         @Override
         public void ItemClick(View v, int position) {
             FileItem fileItem = fileList.get(position);
             if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
                 String uri = UriUtil.HHTPHEAD + fileItem.getHref();
-                UpdatePage(uri, OPENPACKAGE);
+                openPage(uri);
             } else if (fileItem.getFileORHolder() == FileItem.ISFILE) {
                 final String file_id = fileItem.getHref();
                 new fileInfoPop(MainActivity.this, file_id, new fileInfoPop.onClick() {
@@ -173,32 +241,28 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         }
     }
 
-    //listitem长按事件，删除文件夹
-    class itemLongOnClick implements FileListAdapter.OnItemLongClickListener {
-
-        @Override
-        public boolean onLongClick(View view, int position) {
-            FileItem fileItem = fileList.get(position);
-            Log.d("onLongClick", "onLongClick: ");
-            if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
-                String folder_href = fileItem.getHref();
-                String folder_ids[] = folder_href.split("=");
-                String folder_id = folder_ids[folder_ids.length - 1];
-                Log.d("onLongClick2", folder_id);
-                deleteFolder(folder_id);
-            }
-            return false;
-        }
+    //打开页面
+    private void openPage(String uri) {
+        history.add(uri);
+        UpdatePage(uri);
     }
 
-    //刷新页面
-    private void UpdatePage(final String uri, final int action) {
-        if (action == OPENPACKAGE)
-            history.add(uri);
-        else if (action == CLOSEPACKAGE)
-            history.remove(history.size() - 1);
-        else if (action == UPDATEPACKAGE) {
-        }
+    //返回页面
+    private void backPage() {
+        history.remove(history.size() - 1);
+        String uri = history.get(history.size() - 1);
+        UpdatePage(uri);
+    }
+
+    //刷新当前页面
+    private void RefreshPage() {
+        String uri = history.get(history.size() - 1);
+        UpdatePage(uri);
+    }
+
+    //刷新页面   ,被调用
+    private void UpdatePage(final String uri) {
+
         HttpWorker.UpdatePage(uri, new HttpWorker.PageUpdatePageCallbackListener() {
             @Override
             public void onError(Exception e) {
@@ -208,10 +272,10 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
             @Override
             public void onFinish(final List<FileItem> list) {
                 fileList = list;
+                ischeck=false;
                 adapter = new FileListAdapter(fileList);
                 fileListView.setAdapter(adapter);
                 adapter.setMOnItemClickListener(new itemOnClick());
-                adapter.setMOnItemLongClickListener(new itemLongOnClick());
                 adapter.notifyDataSetChanged();
             }
         });
@@ -227,7 +291,7 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
 
             @Override
             public void onFinish() {
-                UpdatePage(uri, UPDATEPACKAGE);
+                RefreshPage();
             }
         });
     }
@@ -242,8 +306,7 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
 
             @Override
             public void onFinish() {
-                String uri = history.get(history.size() - 1);
-                UpdatePage(uri, UPDATEPACKAGE);
+                RefreshPage();
             }
         });
 
@@ -259,8 +322,7 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
 
             @Override
             public void onFinish() {
-                String uri = history.get(history.size() - 1);
-                UpdatePage(uri, UPDATEPACKAGE);
+                RefreshPage();
             }
         });
     }

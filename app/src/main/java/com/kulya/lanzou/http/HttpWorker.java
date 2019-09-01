@@ -3,15 +3,16 @@ package com.kulya.lanzou.http;
 
 import android.app.DownloadManager;
 import android.content.Context;
+
 import android.net.Uri;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.kulya.lanzou.MainActivity;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.util.Myapplication;
+import com.kulya.lanzou.asyncTask.uploadTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,12 +22,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
 import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /*
@@ -37,7 +44,7 @@ import okhttp3.Response;
 */
 public class HttpWorker {
     private static HttpWorker mHttpWorker;
-
+    private static final MediaType FROM_DATA = MediaType.parse("multipart/form-data");
 
     private HttpWorker() {
 
@@ -52,6 +59,35 @@ public class HttpWorker {
             }
         }
         return mHttpWorker;
+    }
+
+
+    private boolean login(final String username, final String password) throws IOException {
+        String data = OkHttpUtil.getSyncString(UriUtil.GETFORMHASH);
+        Document document = Jsoup.parse(data);
+        Elements element = document.select("input[name=formhash]");
+        String formhash = element.attr("value");
+
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[6];
+        rs[0] = new OkHttpUtil.RequestData("formhash", formhash);
+        rs[1] = new OkHttpUtil.RequestData("username", username);
+        rs[2] = new OkHttpUtil.RequestData("password", password);
+        rs[3] = new OkHttpUtil.RequestData("action", "login");
+        rs[4] = new OkHttpUtil.RequestData("task", "login");
+        rs[5] = new OkHttpUtil.RequestData("ref", "https://up.woozooo.com/");
+        String info = OkHttpUtil.postSyncString(UriUtil.LOGIN, rs);
+
+        Document document2 = Jsoup.parse(info);
+        Elements element2 = document2.getElementsByClass("info_b2");
+        String linkText = element2.text();
+        Log.d("2222224", linkText);
+        if (linkText.equals("登录成功，欢迎您回来。")) {
+            return true;
+        } else if (document.getElementsByClass("e_u").text().equals("账号不正确 密码不正确")) {
+            MyCookieJar.resetCookies();
+            return false;
+        }
+        return false;
     }
 
     //获取短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
@@ -120,10 +156,26 @@ public class HttpWorker {
 
     }
 
-    //解析一级域名得到下载链接并下载
+    //解析二级域名
+    private Response loginGet2(String address, String path) throws IOException {
+        OkHttpUtil.RequestData[] header = new OkHttpUtil.RequestData[9];
+        header[0] = new OkHttpUtil.RequestData("path", path);
+        header[1] = new OkHttpUtil.RequestData("scheme", "https");
+        header[2] = new OkHttpUtil.RequestData("upgrade-insecure-requests", "1");
+        header[3] = new OkHttpUtil.RequestData("authority", "vip.d0.baidupan.com");
+        header[4] = new OkHttpUtil.RequestData("method", "GET");
+        header[5] = new OkHttpUtil.RequestData("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3");
+        header[6] = new OkHttpUtil.RequestData("accept-encoding", "gzip, deflate, br");
+        header[7] = new OkHttpUtil.RequestData("accept-language", "zh-CN,zh;q=0.9");
+        header[8] = new OkHttpUtil.RequestData("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36");
+        return OkHttpUtil.getSync(address, header);
+
+    }
+
+    //得到下载链接并下载
     private void downLoadDatabase(String url, String path) throws IOException {
 
-        Response response = HttpUtil.loginGet2(url, path);
+        Response response = loginGet2(url, path);
         String downurl = response.request().url().toString();
         Headers headers = response.headers();
         String Disposition = headers.get("Content-Disposition");
@@ -132,7 +184,7 @@ public class HttpWorker {
         //创建下载任务,downloadUrl就是下载链接
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downurl));
         //指定下载路径和下载文件名
-        request.setDestinationInExternalPublicDir("1111", filename[1]);
+        request.setDestinationInExternalPublicDir("Download/lanzou", filename[1]);
         //获取下载管理器
         DownloadManager downloadManager = (DownloadManager) Myapplication.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
         downloadManager.enqueue(request);
@@ -154,29 +206,34 @@ public class HttpWorker {
             list.add(new FileItem(filename, FileItem.ISHOLDER, linkHref));
             Log.d("jump:linkHref", linkHref);
         }
+for(int page=1;page<8;page++){
+    String folder_ids[] = uri.split("=");
+    String folder_id = folder_ids[folder_ids.length - 1];
+    OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
+    rs[0] = new OkHttpUtil.RequestData("task", "5");
+    rs[1] = new OkHttpUtil.RequestData("folder_id", folder_id);
+    rs[2] = new OkHttpUtil.RequestData("pg", String.valueOf(page));//页数
+    String data2 = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
+    Log.d("8881", data2);
+    String ss = data2.substring(data2.indexOf("["), data2.indexOf("]") + 1);
+    if(ss.length()<=5)
+        break;
+    Log.d("88812", ss);
+    JSONArray jsonArray = new JSONArray(ss);
+    for (int i = 0; i < jsonArray.length(); i++) {
+        JSONObject jsonObject = jsonArray.getJSONObject(i);
+        String name = jsonObject.getString("name_all");
+        String file_id = jsonObject.getString("id");
+        Log.d("getItem:file_id", file_id);
+        Log.d("getItem:file_id", name);
+        list.add(new FileItem(name, FileItem.ISFILE, file_id));
+    }
+}
 
-        String folder_ids[] = uri.split("=");
-        String folder_id = folder_ids[folder_ids.length - 1];
-        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
-        rs[0] = new OkHttpUtil.RequestData("task", "5");
-        rs[1] = new OkHttpUtil.RequestData("folder_id", folder_id);
-        rs[2] = new OkHttpUtil.RequestData("pg", "1");//页数
-        String data2 = OkHttpUtil.postSyncString(UriUtil.GETFILEID, rs);
-        Log.d("8881", data2);
-        String ss = data2.substring(data2.indexOf("["), data2.indexOf("]") + 1);
-        Log.d("88812", ss);
-        JSONArray jsonArray = new JSONArray(ss);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String name = jsonObject.getString("name_all");
-            String file_id = jsonObject.getString("id");
-            Log.d("getItem:file_id", file_id);
-            Log.d("getItem:file_id", name);
-            list.add(new FileItem(name, FileItem.ISFILE, file_id));
-        }
         return list;
     }
 
+    //新建文件夹
     private boolean setNewFolder(String uri, String folder_name, String folder_description) throws IOException, JSONException {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
         String folder_ids[] = uri.split("=");
@@ -198,6 +255,7 @@ public class HttpWorker {
         return false;
     }
 
+    //获取文件短链接
     private String getFileHrefSync(String file_id) throws IOException, JSONException {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
         rs[0] = new OkHttpUtil.RequestData("task", "22");
@@ -212,6 +270,40 @@ public class HttpWorker {
         uri = UriUtil.SHAREHEAD + f_id;
         Log.d("downfile:f_id", uri);
         return uri;
+    }
+
+    //上传文件
+    private boolean sendFromDataPostRequest(String file_uri, String folder_id) throws IOException {
+        OkHttpClient client = OkHttpUtil.getmOkHttpClient2();
+        String url = "https://pc.woozooo.com/fileup.php";
+        File file = new File(file_uri);
+        String str[] = file_uri.split("/");
+        String name = str[str.length - 1];
+        RequestBody fileBody = RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=utf-8"), file);
+
+        //定义请求体，前面三个为表单中的string类型参数，第四个为需要上传的文件
+        MultipartBody mBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("size", String.valueOf(file.length()))//***********
+                .addFormDataPart("task", "1")
+                .addFormDataPart("folder_id", folder_id)//*****************
+                .addFormDataPart("name", name)//**********
+                .addFormDataPart("upload_file", name, fileBody)//*******
+                // .addFormDataPart("type", "text/plain")//********
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(mBody)
+                .build();
+        //设置为post请求，url后面为请求路径，header设置请求头（可以设置多个），post后面设置请求体
+
+        Response response = client.newCall(request).execute();
+        String data = response.body().string();
+        if (data.indexOf("\\u4e0a\\u4f20\\u6210\\u529f") != -1) {
+            return true;
+        }
+        return false;
+
     }
 
     //task3 删除文件夹
@@ -252,6 +344,13 @@ public class HttpWorker {
 
     }
 
+    //登录监听接口
+    public interface loginCallbackListener {
+        void onError(Exception e);
+
+        void onFinish();
+    }
+
     //获取短链接接口
     public interface FileHrefCallbackListener {
         void onError(Exception e);
@@ -273,10 +372,30 @@ public class HttpWorker {
         void onFinish();
     }
 
-    /*************************************************************************
+
+
+    /*对外接口
+     * ************************************************************************
      * ***********************************************************************
      * ***********************************************************************
      */
+    public static void Login(final String username, final String password, final loginCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean success = getInstance().login(username, password);
+                    if (success)
+                        listener.onFinish();
+                    else
+                        listener.onError(new Exception());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onError(e);
+                }
+            }
+        }).start();
+    }
 
     //task22 获取文件短链接
     public static void getFileHref(final String file_id, final FileHrefCallbackListener listener) {
@@ -408,6 +527,11 @@ public class HttpWorker {
             }
         }).start();
 
+    }
+
+    //上传文件
+    public static Boolean sendFiles( String file_uri, String folder_id) throws IOException {
+        return getInstance().sendFromDataPostRequest(file_uri,folder_id);
     }
 
 }
