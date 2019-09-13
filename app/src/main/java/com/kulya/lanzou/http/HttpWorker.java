@@ -63,6 +63,7 @@ public class HttpWorker {
 
 
     private boolean login(final String username, final String password) throws IOException {
+        Log.d("2222224", "fsdfds");
         String data = OkHttpUtil.getSyncString(UriUtil.GETFORMHASH);
         Document document = Jsoup.parse(data);
         Elements element = document.select("input[name=formhash]");
@@ -87,6 +88,7 @@ public class HttpWorker {
             MyCookieJar.resetCookies();
             return false;
         }
+        MyCookieJar.resetCookies();
         return false;
     }
 

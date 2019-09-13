@@ -57,7 +57,7 @@ public class MyCookieJar implements CookieJar {
 
 
     public static void resetCookies() {
-        cache = null;
+        cache.clear();
     }
 
     public static void print() {
