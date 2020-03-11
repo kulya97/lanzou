@@ -2,12 +2,10 @@ package com.kulya.lanzou;
 
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -71,7 +69,7 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        openPage(UriUtil.HOME);
+        openPage("-1");
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED) {
@@ -127,10 +125,16 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
                     if (lis.getFileORHolder() == FileItem.ISFILE) {
                         if (lis.getIsCheck()) {
                             Log.d("hjy", lis.getFilename());
-                            HttpWorker.FileDown(lis.getHref());
+                            HttpWorker.FileDown(lis.getFilename(),lis.getHref());
                         }
                     }
                 }
+                break;
+            case R.id.share:
+
+                Uri uri = Uri.parse("https://github.com/kulya91/lanzou.git");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -215,20 +219,18 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         public void ItemClick(View v, int position) {
             FileItem fileItem = fileList.get(position);
             if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
-                String uri = UriUtil.HHTPHEAD + fileItem.getHref();
-                openPage(uri);
+                openPage(fileItem.getHref());
             } else if (fileItem.getFileORHolder() == FileItem.ISFILE) {
-                final String file_id = fileItem.getHref();
-                new fileInfoPop(MainActivity.this, file_id, new fileInfoPop.onClick() {
+                new fileInfoPop(MainActivity.this, fileItem, new fileInfoPop.onClick() {
                     @Override
-                    public void onClick(int num, String file_id) {
-                        Log.d("9527", num + " :" + file_id);
+                    public void onClick(int num, FileItem Item) {
+                        Log.d("9527", num + " :" + Item.getHref());
                         switch (num) {
                             case fileInfoPop.DELETE:
-                                deleteFile_(file_id);
+                                deleteFile_(Item.getHref());
                                 break;
                             case fileInfoPop.DOWNLAOD:
-                                HttpWorker.FileDown(file_id);
+                                HttpWorker.FileDown(Item.getFilename(),Item.getHref());
                                 break;
                             default:
                                 break;

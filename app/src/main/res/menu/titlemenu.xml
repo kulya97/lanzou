@@ -12,4 +12,7 @@
     <item
         android:id="@+id/down_menu"
         android:title="下载" />
+    <item
+        android:id="@+id/share"
+        android:title="本软件开源，点击跳转Github" />
 </menu>

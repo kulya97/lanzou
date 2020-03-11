@@ -11,11 +11,9 @@ import java.util.List;
 */
 public class UriUtil {
     public static final List<String> HttpPaths = new ArrayList<>();
-    public static final String GETFORMHASH = "https://pc.woozooo.com/account.php?action=login&ref=/mydisk.php";
-    public static final String LOGIN = "https://pc.woozooo.com/account.php";
-    public static final String HHTPHEAD = "https://pc.woozooo.com/";
-    public static final String HOME = "https://pc.woozooo.com/mydisk.php?item=files&action=index&folder_node=1&folder_id=-1";
-    public static final String GETFILEID = "https://pc.woozooo.com/doupload.php";
+    public static final String LOGIN = "https://pc.woozooo.com/mlogin.php";
+    public static final String TASK = "https://pc.woozooo.com/doupload.php";
+    public static final String UPLOADFILE = "https://pc.woozooo.com/fileup.php";
     public static final String SHAREHEAD = "https://www.lanzous.com/";
     public static final String DOWNFILEHEAD = "https://vip.d0.baidupan.com/file/";
     public static final String DOWNFILEPATH = "/file/";

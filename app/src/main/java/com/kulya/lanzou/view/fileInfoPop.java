@@ -1,7 +1,6 @@
 package com.kulya.lanzou.view;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
@@ -11,16 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
-import com.kulya.lanzou.MainActivity;
 import com.kulya.lanzou.R;
 import com.kulya.lanzou.http.HttpWorker;
+import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.util.Myapplication;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /*
 项目名称： lanzou
@@ -34,16 +30,16 @@ public class fileInfoPop extends PopupWindow {
     private Activity mContext;
     private onClick click;
     private View contentView;
-    private String file_id;
+    private FileItem fileItem;
 
     public interface onClick {
-        void onClick(int num, String file_id);
+        void onClick(int num, FileItem fileItem);
     }
 
-    public fileInfoPop(Activity mContext, String file_id, onClick click) {
+    public fileInfoPop(Activity mContext, FileItem fileItem, onClick click) {
         this.mContext = mContext;
-        this.file_id = file_id;
         this.click = click;
+        this.fileItem=fileItem;
         contentView = LayoutInflater.from(mContext).inflate(R.layout.filetips, null);
         initPop();
         initView();
@@ -55,7 +51,7 @@ public class fileInfoPop extends PopupWindow {
         Button downfile = contentView.findViewById(R.id.downloadfile);
         Button movefile = contentView.findViewById(R.id.movefile);
         Button pass = contentView.findViewById(R.id.pass);
-        HttpWorker.getFileHref(file_id, new HttpWorker.FileHrefCallbackListener() {
+        HttpWorker.getFileHref(fileItem.getHref(), new HttpWorker.FileHrefCallbackListener() {
             @Override
             public void onError(Exception e) {
 
@@ -77,17 +73,15 @@ public class fileInfoPop extends PopupWindow {
         deltefile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("2468", file_id);
-                click.onClick(DELETE, file_id);
+
+                click.onClick(DELETE, fileItem);
                 dismiss();
             }
         });
         downfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("24687", file_id);
-                click.onClick(DOWNLAOD, file_id);
-                Log.d("24687", "22");
+                click.onClick(DOWNLAOD, fileItem);
                 dismiss();
             }
         });
