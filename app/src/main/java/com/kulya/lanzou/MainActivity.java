@@ -131,7 +131,6 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
                 }
                 break;
             case R.id.share:
-
                 Uri uri = Uri.parse("https://github.com/kulya91/lanzou.git");
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
