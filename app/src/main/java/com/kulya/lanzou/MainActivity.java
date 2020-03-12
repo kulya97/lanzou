@@ -235,8 +235,6 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
                         }
                     }
                 });
-
-
             }
         }
     }
