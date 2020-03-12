@@ -153,8 +153,7 @@ public class MainActivity extends baseactivity implements View.OnClickListener, 
         swipeRefreshLayout.setOnRefreshListener(this);
     }
 
-    //悬浮按
-    // 钮点击事件
+    //悬浮按钮点击事件
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
