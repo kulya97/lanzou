@@ -6,8 +6,8 @@ android {
         applicationId "com.kulya.lanzou"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.11"
+        versionCode 4
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
