@@ -50,7 +50,6 @@ public class OkHttpUtil {
         mDelivery = new Handler(Looper.getMainLooper());
     }
 
-
     //获取实例
     private static OkHttpUtil getInstance() {
         if (mHttpUtil == null) {
