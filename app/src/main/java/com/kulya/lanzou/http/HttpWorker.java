@@ -216,13 +216,9 @@ public class HttpWorker {
     //下载文件
     private void downFileSync(String fileName,String fileId) throws IOException, JSONException {
         String FileHref = getFileHrefSync(fileId);
-        Log.d("66661", FileHref);
         String FileSecondHref = getFileSecondHref(FileHref);
-        Log.d("66662", FileSecondHref);
         String DownKey = GetDownKey(FileSecondHref);
-        Log.d("66663", DownKey);
         String DownUri = GetDownUri(FileSecondHref, DownKey);
-        Log.d("66664", DownUri);
         String DownSecondUri = GetDownSecondUri(DownUri);
         downLoadDatabase(DownSecondUri,fileName);
     }
