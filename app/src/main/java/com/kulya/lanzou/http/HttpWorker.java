@@ -61,13 +61,6 @@ public class HttpWorker {
     //登陆  formhash可能会变
     private boolean LoginSync(final String username, final String password) throws IOException, JSONException {
         //作废，暂时不用
-//        String data = OkHttpUtil.getSyncString(UriUtil.GETFORMHASH);
-//        Document document = Jsoup.parse(data);
-//        Log.d("666", String.valueOf(document));
-//        Elements element = document.select("input[name=formhash]");
-//        Log.d("6667", String.valueOf(element));
-//        String formhash = element.attr("value");
-//        Log.d("6668", formhash);
 
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
         rs[0] = new OkHttpUtil.RequestData("formhash", "5dc76a08");
@@ -223,9 +216,13 @@ public class HttpWorker {
     //下载文件
     private void downFileSync(String fileName,String fileId) throws IOException, JSONException {
         String FileHref = getFileHrefSync(fileId);
+        Log.d("66661", FileHref);
         String FileSecondHref = getFileSecondHref(FileHref);
+        Log.d("66662", FileSecondHref);
         String DownKey = GetDownKey(FileSecondHref);
+        Log.d("66663", DownKey);
         String DownUri = GetDownUri(FileSecondHref, DownKey);
+        Log.d("66664", DownUri);
         String DownSecondUri = GetDownSecondUri(DownUri);
         downLoadDatabase(DownSecondUri,fileName);
     }
@@ -247,54 +244,47 @@ public class HttpWorker {
 
     //获取二级短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
     private String getFileSecondHref(String file_href) throws IOException, JSONException {
-        //获取短链接
-        //  String file_href = getFileHrefSync(file_id);
-        //得到key
         String data = OkHttpUtil.getSyncString(file_href);
         Document document = Jsoup.parse(data);
         Elements element = document.getElementsByClass("ifr2");
         return element.attr("src");
-        // GetDownKey(linkHref);
-
     }
 
     //解析https://www.lanzous.com/？fnadjic_c得到第二个
     private String GetDownKey(String fileSecondHref) throws IOException, JSONException {
         final String uri = "https://www.lanzous.com/" + fileSecondHref;
-        Log.d("6660", uri);
         String data = OkHttpUtil.getSyncString(uri);
         Document document = Jsoup.parse(data);
         String str = document.getElementsByTag("script").toString().trim();
-        int a = str.indexOf("var sg = ");
+        int a = str.indexOf("\t\tvar cots");
         int b = str.indexOf("c_c");
-        return str.substring(a + "var sg = ".length() + 1, b + 3);
+        return str.substring(a + "\t\tvar cots".length() + 4, b + 3);
     }
 
     //得到一级域名
-    private String GetDownUri(String fileSecondHref, String downKey) throws IOException, JSONException {
+    private String GetDownUri(String fileSecondHref, String sign) throws IOException, JSONException {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
         rs[0] = new OkHttpUtil.RequestData("action", "downprocess");
-        rs[1] = new OkHttpUtil.RequestData("sign", downKey);
+        rs[1] = new OkHttpUtil.RequestData("sign", sign);
         rs[2] = new OkHttpUtil.RequestData("ves", "1");
-
-        OkHttpUtil.RequestData[] header = new OkHttpUtil.RequestData[15];
-        header[0] = new OkHttpUtil.RequestData("authority", "www.lanzous.com");
-        header[1] = new OkHttpUtil.RequestData("method", "POST");
-        header[2] = new OkHttpUtil.RequestData("path", "/ajaxm.php");
-        header[3] = new OkHttpUtil.RequestData("scheme", "https");
-        header[4] = new OkHttpUtil.RequestData("accept", "application/json, text/javascript, */*");
-        header[5] = new OkHttpUtil.RequestData("accept-encoding", "gzip, deflate, br");
-        header[6] = new OkHttpUtil.RequestData("accept-language", "zh-CN,zh;q=0.9");
-        header[7] = new OkHttpUtil.RequestData("content-length", "112");
-        header[8] = new OkHttpUtil.RequestData("content-type", "application/x-www-form-urlencoded");
-        header[9] = new OkHttpUtil.RequestData("origin", "https://www.lanzous.com");
-        header[10] = new OkHttpUtil.RequestData("referer", fileSecondHref);
-        header[11] = new OkHttpUtil.RequestData("sec-fetch-mode", "cors");
-        header[12] = new OkHttpUtil.RequestData("sec-fetch-site", "same-origin");
-        header[13] = new OkHttpUtil.RequestData("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
-        header[14] = new OkHttpUtil.RequestData("x-requested-with", "XMLHttpRequest");
+        OkHttpUtil.RequestData[] header = new OkHttpUtil.RequestData[13];
+        header[0] = new OkHttpUtil.RequestData("Accept", "application/json, text/javascript, */*");
+        header[1] = new OkHttpUtil.RequestData("Accept-Encoding", "gzip, deflate, br");
+        header[2] = new OkHttpUtil.RequestData("Accept-Language", "zh-CN,zh;q=0.9");
+        header[3] = new OkHttpUtil.RequestData("Connection", "keep-alive");
+        header[4] = new OkHttpUtil.RequestData("Content-Length", "112");
+        header[5] = new OkHttpUtil.RequestData("Content-Type", "application/x-www-form-urlencoded");
+        header[6] = new OkHttpUtil.RequestData("Host", "lanzous.com");
+        header[7] = new OkHttpUtil.RequestData("Origin", "https://www.lanzous.com");
+        header[8] = new OkHttpUtil.RequestData("Referer", fileSecondHref);
+        header[9] = new OkHttpUtil.RequestData("Sec-Fetch-Mode", "cors");
+        header[10] = new OkHttpUtil.RequestData("Sec-Fetch-Site", "same-origin");
+        header[11] = new OkHttpUtil.RequestData("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
+        header[12] = new OkHttpUtil.RequestData("X-Requested-With", "XMLHttpRequest");
+        Log.d("66665", "1");
         String data = OkHttpUtil.postSyncString(UriUtil.GETDOWNURI, rs, header);
         JSONObject jsonObject = new JSONArray("[" + data + "]").getJSONObject(0);
+        Log.d("66665", "2");
         return jsonObject.getString("url");
     }
 

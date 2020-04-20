@@ -17,6 +17,6 @@ public class UriUtil {
     public static final String SHAREHEAD = "https://www.lanzous.com/";
     public static final String DOWNFILEHEAD = "https://vip.d0.baidupan.com/file/";
     public static final String DOWNFILEPATH = "/file/";
-    public static final String GETDOWNURI = "https://www.lanzous.com/ajaxm.php";
+    public static final String GETDOWNURI = "https://lanzous.com/ajaxm.php";
 
 }

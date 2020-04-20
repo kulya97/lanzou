@@ -11,11 +11,11 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="30dp"
             android:id="@+id/login_log"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
             android:gravity="left"
 
             android:src="@drawable/log" />
@@ -56,9 +56,9 @@
 
             <EditText
                 android:id="@+id/login_key"
-                android:password="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:password="true"
                 android:textColor="#1a1a1a"
                 android:textCursorDrawable="@null" />
         </LinearLayout>
@@ -72,8 +72,8 @@
             android:background="#41c5f7"
             android:gravity="center"
             android:text="登录"
-            android:textSize="18dp"
-            android:textColor="#ffffff" />
+            android:textColor="#ffffff"
+            android:textSize="18dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
