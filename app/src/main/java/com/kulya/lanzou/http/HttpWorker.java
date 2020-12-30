@@ -241,6 +241,9 @@ public class HttpWorker {
     //获取二级短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
     private String getFileSecondHref(String file_href) throws IOException, JSONException {
         String data = OkHttpUtil.getSyncString(file_href);
+        if(data.indexOf("来晚啦...文件取消分享了")>=0){
+            throw new IOException();
+        }
         Document document = Jsoup.parse(data);
         Elements element = document.getElementsByClass("ifr2");
         return element.attr("src");
@@ -252,9 +255,9 @@ public class HttpWorker {
         String data = OkHttpUtil.getSyncString(uri);
         Document document = Jsoup.parse(data);
         String str = document.getElementsByTag("script").toString().trim();
-        int a = str.indexOf("\t\tvar cots");
+        int a = str.indexOf("ajaxdata = '");
         int b = str.indexOf("c_c");
-        return str.substring(a + "\t\tvar cots".length() + 4, b + 3);
+        return str.substring(a + "ajaxdata = '".length(), b + 3);
     }
 
     //得到一级域名
