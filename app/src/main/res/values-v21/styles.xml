@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="NoTitle" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="NoTitle" parent="QMUI.Compat.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/windowColor</item><!--窗口颜色-->
         <item name="android:colorButtonNormal">@color/buttonColor</item><!--默认按钮颜色-->
     </style>
 
-    <style name="ChenJin" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <item name="android:statusBarColor">@color/colorPrimary</item><!--状态栏颜色-->
-        <item name="colorPrimary">@color/colorPrimary</item><!--标题栏颜色-->
-        <item name="colorAccent">@color/colorPrimary</item>
-        <item name="android:textCursorDrawable">@null</item>   <!--光标颜色和字体一样-->
-        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>   <!--解决输入法顶走标题栏-->
-        <item name="android:windowBackground">@color/windowColor</item><!--窗口颜色-->
-        <item name="android:colorButtonNormal">@color/buttonColor</item><!--默认按钮颜色-->
+    <style name="ChenJin" parent="QMUI.Compat.NoActionBar">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="colorAccent">@color/windowColor</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+
+        <item name="android:statusBarColor">@color/colorPrimary</item>
     </style>
 
-    <style name="touming" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item><!--状态栏透明-->
-        <item name="android:fitsSystemWindows">true</item><!--是否留状态栏位置-->
-        <item name="android:textCursorDrawable">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/windowColor</item><!--窗口颜色-->
-        <item name="android:colorButtonNormal">@color/buttonColor</item><!--默认按钮颜色-->
-    </style>
+    <style name="mycheckbox" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="drawableSize">45dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:button">@drawable/mycheckbox</item>
+        <item name="android:layout_gravity">center</item>
 
+    </style>
 </resources>

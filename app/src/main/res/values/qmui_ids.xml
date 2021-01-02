@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Tencent is pleased to support the open source community by making QMUI_Android available.
+
+ Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
+
+ Licensed under the MIT License (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+
+ http://opensource.org/licenses/MIT
+
+ Unless required by applicable law or agreed to in writing, software distributed under the License is
+ distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ either express or implied. See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<resources>
+    <!-- dialog -->
+    <item name="qmui_dialog_root_layout" type="id"/>
+    <item name="qmui_dialog_layout" type="id"/>
+    <item name="qmui_dialog_title_id" type="id"/>
+    <item name="qmui_dialog_operator_layout_id" type="id"/>
+    <item name="qmui_dialog_content_id" type="id"/>
+    <item name="qmui_dialog_edit_input" type="id"/>
+    <item name="qmui_dialog_edit_right_icon" type="id"/>
+    <item name="qmui_bottom_sheet_title" type="id"/>
+    <item name="qmui_bottom_sheet_cancel" type="id"/>
+    
+    <item name="qmui_tab_segment_item_id" type="id"/>
+
+    <item name="qmui_view_can_not_cache_tag" type="id"/>
+
+    <item name="qmui_topbar_item_left_back" type="id"/>
+
+    <item name="qmui_view_offset_helper" type="id"/>
+    <item name="qmui_window_inset_layout_display_cutout" type="id"/>
+
+    <item name="qmui_window_inset_keyboard_area_consumer" type="id"/>
+
+    <item name="qmui_popup_close_btn_id" type="id"/>
+
+    <item name="qmui_skin_current" type="id"/>
+    <item name="qmui_skin_value" type="id" />
+    <item name="qmui_skin_default_attr_provider" type="id" />
+    <item name="qmui_skin_apply_listener" type="id" />
+    <item name="qmui_skin_skip_for_maker" type="id"/>
+    <item name="qmui_skin_adapter" type="id"/>
+    <item name="qmui_skin_intercept_dispatch" type="id"/>
+    <item name="qmui_skin_ignore_apply" type="id"/>
+
+    <item name="qmui_click_timestamp" type="id"/>
+    <item name="qmui_click_debounce_action" type="id"/>
+</resources>

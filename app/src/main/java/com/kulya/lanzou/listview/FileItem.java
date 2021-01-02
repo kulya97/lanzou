@@ -11,13 +11,23 @@ public class FileItem {
     public static final int ISHOLDER = 1;
     private String filename;
     private int fileORHolder;
-    private String href;
+    private String id;
     private boolean isCheck;
 
-    public FileItem(String filename, int fileORHolder, String href) {
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+
+    private String fileUrl;
+
+    public FileItem(String filename, int fileORHolder, String id) {
         this.filename = filename;
         this.fileORHolder = fileORHolder;
-        this.href = href;
+        this.id = id;
         isCheck = false;
     }
 
@@ -29,13 +39,12 @@ public class FileItem {
         this.filename = filename;
     }
 
-
-    public String getHref() {
-        return href;
+    public String getId() {
+        return id;
     }
 
-    public void setHref(String href) {
-        this.href = href;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getFileORHolder() {

@@ -1,6 +1,5 @@
 package com.kulya.lanzou;
 
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,12 +12,20 @@ import android.widget.Toast;
 
 import com.kulya.lanzou.http.HttpWorker;
 import com.kulya.lanzou.util.baseactivity;
+import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
 
-public class LoginActivity extends baseactivity implements View.OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-    private EditText login_id;
-    private EditText login_key;
-    private Button login_button;
+public class LoginActivity extends baseactivity {
+
+    @BindView(R.id.login_id)
+    EditText loginId;
+    @BindView(R.id.login_key)
+    EditText loginKey;
+    @BindView(R.id.login_button)
+    Button loginButton;
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
 
@@ -26,16 +33,10 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        initView();
-    }
-
-    private void initView() {
-        login_id = (EditText) findViewById(R.id.login_id);
-        login_key = (EditText) findViewById(R.id.login_key);
-        login_button = (Button) findViewById(R.id.login_button);
-        login_button.setOnClickListener(this);
+        ButterKnife.bind(this);
         setKey();
     }
+
 
     //保存密码
     private void saveKey(String id, String key) {
@@ -50,29 +51,21 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         String username = pref.getString("id", "");
         String password = pref.getString("key", "");
-        login_id.setText(username);
-        login_key.setText(password);
+        loginId.setText(username);
+        loginKey.setText(password);
 
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.login_button:
-                submit();
-                break;
-        }
-    }
 
     //登录事件
     private void submit() {
-        String id = login_id.getText().toString().trim();
+        String id = loginId.getText().toString().trim();
         if (TextUtils.isEmpty(id)) {
             Toast.makeText(this, "id不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String key = login_key.getText().toString().trim();
+        String key = loginKey.getText().toString().trim();
         if (TextUtils.isEmpty(key)) {
             Toast.makeText(this, "key不能为空", Toast.LENGTH_SHORT).show();
             return;
@@ -83,32 +76,30 @@ public class LoginActivity extends baseactivity implements View.OnClickListener 
 
     //登录
     private void login(final String username, final String password) {
+        final QMUITipDialog mdialog = new QMUITipDialog.Builder(this)
+                .setIconType(QMUITipDialog.Builder.ICON_TYPE_LOADING)
+                .create();
+        mdialog.show();
         HttpWorker.Login(username, password, new HttpWorker.loginCallbackListener() {
             @Override
             public void onError(Exception e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+                mdialog.dismiss();
+                Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFinish() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    }
-                });
-
+                mdialog.dismiss();
+                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
+    }
 
 
+    @OnClick(R.id.login_button)
+    public void onClick() {
+        submit();
     }
 }

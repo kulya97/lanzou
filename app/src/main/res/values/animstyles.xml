@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="contextMenuAnim" parent="@android:style/Animation.Activity">
-        <item name="android:windowEnterAnimation">@anim/pop_menu_enter</item>
-        <item name="android:windowExitAnimation">@anim/pop_menu_exit</item>
-    </style>
-
-</resources>

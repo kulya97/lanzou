@@ -61,7 +61,6 @@ public class HttpWorker {
     //登陆  formhash可能会变
     private boolean LoginSync(final String username, final String password) throws IOException, JSONException {
         //作废，暂时不用
-
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
         rs[0] = new OkHttpUtil.RequestData("formhash", "5dc76a08");
         rs[1] = new OkHttpUtil.RequestData("uid", username);
@@ -120,21 +119,24 @@ public class HttpWorker {
                 JSONObject fileObject = jsonArray.getJSONObject(i);
                 String name = fileObject.getString("name_all");
                 String file_id = fileObject.getString("id");
-                list.add(new FileItem(name, FileItem.ISFILE, file_id));
+                 String fileUrl = getFileHrefSync(file_id);
+                FileItem item=new FileItem(name, FileItem.ISFILE, file_id);
+                item.setFileUrl(fileUrl);
+                list.add(item);
             }
         }
         return list;
     }
 
     //新建文件夹 task2
-    private boolean setNewFolderSync(String uri, String folder_name, String folder_description) throws IOException, JSONException {
-        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
+    private boolean setNewFolderSync(String uri, String folder_name) throws IOException, JSONException {
+        OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
         String folder_ids[] = uri.split("=");
         String parent_id = folder_ids[folder_ids.length - 1];
         rs[0] = new OkHttpUtil.RequestData("task", "2");
         rs[1] = new OkHttpUtil.RequestData("parent_id", parent_id);
         rs[2] = new OkHttpUtil.RequestData("folder_name", folder_name);
-        rs[3] = new OkHttpUtil.RequestData("folder_description", folder_description);
+        //rs[3] = new OkHttpUtil.RequestData("folder_description", folder_description);
         String data = OkHttpUtil.postSyncString(UriUtil.TASK, rs);
         String info = "";
         JSONArray jsonArray = new JSONArray("[" + data + "]");
@@ -214,13 +216,13 @@ public class HttpWorker {
     }
 
     //下载文件
-    private void downFileSync(String fileName,String fileId) throws IOException, JSONException {
+    private void downFileSync(String fileName, String fileId) throws IOException, JSONException {
         String FileHref = getFileHrefSync(fileId);
         String FileSecondHref = getFileSecondHref(FileHref);
         String DownKey = GetDownKey(FileSecondHref);
         String DownUri = GetDownUri(FileSecondHref, DownKey);
         String DownSecondUri = GetDownSecondUri(DownUri);
-        downLoadDatabase(DownSecondUri,fileName);
+        downLoadDatabase(DownSecondUri, fileName);
     }
 
     //获取文件短链接 task22
@@ -241,7 +243,7 @@ public class HttpWorker {
     //获取二级短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
     private String getFileSecondHref(String file_href) throws IOException, JSONException {
         String data = OkHttpUtil.getSyncString(file_href);
-        if(data.indexOf("来晚啦...文件取消分享了")>=0){
+        if (data.indexOf("来晚啦...文件取消分享了") >= 0) {
             throw new IOException();
         }
         Document document = Jsoup.parse(data);
@@ -308,7 +310,7 @@ public class HttpWorker {
     }
 
     //得到下载链接并下载
-    private void downLoadDatabase(String downSecondUri,String fileName) {
+    private void downLoadDatabase(String downSecondUri, String fileName) {
         String filename[] = downSecondUri.split("=");
         //创建下载任务,downloadUrl就是下载链接
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downSecondUri));
@@ -329,9 +331,9 @@ public class HttpWorker {
 
     //获取短链接接口
     public interface FileHrefCallbackListener {
-        void onError(Exception e);
+        String onError(Exception e);
 
-        void onFinish(String file_href);
+        String onFinish(String file_href);
     }
 
     //页面刷新监听接口
@@ -360,37 +362,26 @@ public class HttpWorker {
             @Override
             public void run() {
                 try {
-                    boolean success = getInstance().LoginSync(username, password);
-                    if (success)
-                        listener.onFinish();
-                    else
-                        listener.onError(new Exception());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    final boolean success = getInstance().LoginSync(username, password);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (success)
+                                listener.onFinish();
+                            else
+                                listener.onError(new Exception());
+                        }
+                    });
+                } catch (final Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(e);
+                        }
+                    });
                 }
             }
         }).start();
-    }
-
-    //task22 获取文件短链接
-    public static void getFileHref(final String file_id, final FileHrefCallbackListener listener) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String href = getInstance().getFileHrefSync(file_id);
-                    listener.onFinish(href);
-                } catch (IOException e) {
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    listener.onError(e);
-                }
-            }
-        }).start();
-
     }
 
     //刷新页面
@@ -404,18 +395,16 @@ public class HttpWorker {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            if (listener != null) {
-                                listener.onFinish(list);
-                            }
-
+                            listener.onFinish(list);
                         }
                     });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
+                } catch (final Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(e);
+                        }
+                    });
                 }
             }
         }).start();
@@ -423,37 +412,42 @@ public class HttpWorker {
     }
 
     //创建文件夹
-    public static void AddFolder(final String uri, final String folder_name, final String folder_description, final CRUDCallbackListener listener) {
+    public static void AddFolder(final String uri, final String folder_name, final CRUDCallbackListener listener) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Boolean aBoolean = getInstance().setNewFolderSync(uri, folder_name, folder_description);
-                    if (aBoolean) {
-                        listener.onFinish();
-                    } else
-                        listener.onError(new Exception());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
+                    final Boolean aBoolean = getInstance().setNewFolderSync(uri, folder_name);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (aBoolean) {
+                                listener.onFinish();
+                            } else
+                                listener.onError(new Exception());
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(e);
+                        }
+                    });
                 }
             }
         }).start();
     }
 
     //下载文件
-    public static void FileDown(final String fileName,final String fileId) {
+    public static void FileDown(final String fileName, final String fileId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    getInstance().downFileSync(fileName,fileId);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                    getInstance().downFileSync(fileName, fileId);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -467,17 +461,24 @@ public class HttpWorker {
             @Override
             public void run() {
                 try {
-                    Boolean aBoolean = getInstance().deleteFileSync(file_id);
-                    if (aBoolean) {
-                        listener.onFinish();
-                    } else
-                        listener.onError(new Exception());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
+                    final Boolean aBoolean = getInstance().deleteFileSync(file_id);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (aBoolean) {
+                                listener.onFinish();
+                            } else
+                                listener.onError(new Exception());
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(e);
+                        }
+                    });
                 }
             }
         }).start();
@@ -490,17 +491,24 @@ public class HttpWorker {
             @Override
             public void run() {
                 try {
-                    Boolean aBoolean = getInstance().deleteFolderSync(folder_id);
-                    if (aBoolean) {
-                        listener.onFinish();
-                    } else
-                        listener.onError(new Exception());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    listener.onError(e);
+                    final Boolean aBoolean = getInstance().deleteFolderSync(folder_id);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (aBoolean) {
+                                listener.onFinish();
+                            } else
+                                listener.onError(new Exception());
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(e);
+                        }
+                    });
                 }
             }
         }).start();
@@ -511,5 +519,4 @@ public class HttpWorker {
     public static Boolean sendFiles(String file_uri, String folder_id) throws IOException {
         return getInstance().uploadFileSync(file_uri, folder_id);
     }
-
 }

@@ -4,7 +4,7 @@ android {
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.kulya.lanzou"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 30
         versionCode 5
         versionName "2.0"
@@ -15,6 +15,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+
+        targetCompatibility JavaVersion.VERSION_1_8
+
     }
 }
 
@@ -32,6 +39,14 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0-beta01'
     implementation 'com.google.android.material:material:1.0.0-beta01'
     implementation 'com.leon:lfilepickerlibrary:1.8.0'
+
+    def qmui_arch_version = '2.0.0-alpha10'
+    implementation "com.qmuiteam:arch:$qmui_arch_version"
+    annotationProcessor "com.qmuiteam:arch-compiler:$qmui_arch_version" // use annotationProcessor if java
+    implementation 'com.qmuiteam:qmui:2.0.0-alpha10'
    // implementation 'com.google.guava:guava:+'
+    implementation 'com.jakewharton:butterknife:+'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:+'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:+'//万能adapter
 
 }

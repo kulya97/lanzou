@@ -3,6 +3,8 @@ package com.kulya.lanzou.util;
 import android.app.Application;
 import android.content.Context;
 
+import com.qmuiteam.qmui.arch.QMUISwipeBackActivityManager;
+
 
 /*
 项目名称： lanzou
@@ -17,6 +19,7 @@ public class Myapplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        QMUISwipeBackActivityManager.init(this);
 
     }
 

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Tencent is pleased to support the open source community by making QMUI_Android available.
+
+ Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
+
+ Licensed under the MIT License (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+
+ http://opensource.org/licenses/MIT
+
+ Unless required by applicable law or agreed to in writing, software distributed under the License is
+ distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ either express or implied. See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<resources>
+
+    <attr name="qmui_backgroundColor" format="color"/>
+    <attr name="qmui_borderColor" format="color"/>
+    <attr name="qmui_borderWidth" format="dimension"/>
+    <attr name="qmui_linkColor" format="color"/>
+    <attr name="qmui_orientation" format="enum">
+        <enum name="horizontal" value="0"/>
+        <enum name="vertical" value="1"/>
+    </attr>
+    <attr name="qmui_title" format="string"/>
+
+    <!--**************** QMUITabSegment ******************-->
+    <declare-styleable name="QMUITabSegment">
+        <attr name="qmui_tab_indicator_height" format="dimension"/>
+        <attr name="qmui_tab_has_indicator" format="boolean"/>
+        <attr name="qmui_tab_indicator_top" format="boolean"/>
+        <attr name="qmui_tab_indicator_with_follow_content" format="boolean"/>
+        <attr name="android:textSize"/>
+        <attr name="qmui_tab_normal_text_size" format="dimension"/>
+        <attr name="qmui_tab_selected_text_size" format="dimension"/>
+        <attr name="qmui_tab_mode" format="enum">
+            <enum name="scrollable" value="0"/>
+            <enum name="fixed" value="1"/>
+        </attr>
+        <attr name="qmui_tab_space" format="dimension"/>
+        <attr name="qmui_tab_icon_position" format="enum">
+            <enum name="left" value="0"/>
+            <enum name="top" value="1"/>
+            <enum name="right" value="2"/>
+            <enum name="bottom" value="3"/>
+        </attr>
+        <attr name="qmui_tab_select_no_animation" format="boolean" />
+    </declare-styleable>
+    <attr name="QMUITabSegmentStyle" format="reference"/>
+
+    <!--************** QMUIGroupListView **************-->
+
+    <attr name="QMUICommonListItemViewStyle" format="reference"/>
+    <attr name="qmui_common_list_item_chevron" format="reference"/>
+    <attr name="qmui_common_list_item_switch" format="reference"/>
+    <declare-styleable name="QMUICommonListItemView">
+        <attr name="qmui_orientation"/>
+        <attr name="qmui_accessory_type" format="enum">
+            <enum name="none" value="0"/>
+            <enum name="chevron" value="1"/>
+            <enum name="switcher" value="2"/>
+            <enum name="custom" value="3"/>
+        </attr>
+        <attr name="qmui_common_list_title_color" format="reference|color"/>
+        <attr name="qmui_common_list_detail_color" format="reference|color"/>
+    </declare-styleable>
+    <attr name="QMUIGroupListSectionViewStyle" format="reference"/>
+
+
+    <!--************ 更新小红点与 new 的样式配置 ***********-->
+    <attr name="QMUITipPointStyle" format="reference"/>
+    <attr name="QMUITipNewStyle" format="reference"/>
+
+    <!--************ QMUILoading ***********-->
+    <declare-styleable name="QMUILoadingView">
+        <attr name="qmui_loading_view_size" format="dimension"/>
+        <attr name="android:color"/>
+    </declare-styleable>
+    <attr name="QMUILoadingStyle" format="reference"/>
+
+    <!--************ QMUITopBar ***********-->
+    <declare-styleable name="QMUITopBar">
+        <attr name="android:ellipsize"/>
+        <attr name="qmui_topbar_title_gravity" format="enum">
+            <enum name="left_center" value="19"/>
+            <enum name="center" value="17"/>
+        </attr>
+        <attr name="qmui_topbar_left_back_drawable_id" format="reference"/>
+        <attr name="qmui_topbar_left_back_width" format="dimension"/>
+        <attr name="qmui_topbar_clear_left_padding_when_add_left_back_view" format="boolean"/>
+        <attr name="qmui_topbar_title_text_size" format="dimension"/>
+        <attr name="qmui_topbar_subtitle_text_size" format="dimension"/>
+        <attr name="qmui_topbar_title_color" format="color"/>
+        <attr name="qmui_topbar_title_bold" format="boolean"/>
+        <attr name="qmui_topbar_title_text_size_with_subtitle" format="dimension"/>
+        <attr name="qmui_topbar_subtitle_bold" format="boolean"/>
+        <attr name="qmui_topbar_subtitle_color" format="color"/>
+        <attr name="qmui_topbar_title_margin_horizontal_when_no_btn_aside" format="dimension"/>
+        <attr name="qmui_topbar_title_container_padding_horizontal" format="dimension"/>
+        <attr name="qmui_topbar_image_btn_width" format="dimension"/>
+        <attr name="qmui_topbar_image_btn_height" format="dimension"/>
+        <attr name="qmui_topbar_text_btn_padding_horizontal" format="dimension"/>
+        <attr name="qmui_topbar_text_btn_color_state_list" format="reference"/>
+        <attr name="qmui_topbar_text_btn_text_size" format="dimension"/>
+        <attr name="qmui_topbar_text_btn_bold" format="boolean"/>
+    </declare-styleable>
+    <attr name="QMUITopBarStyle" format="reference"/>
+
+    <!--**************** QMUIPullRefreshLayout ******************-->
+    <declare-styleable name="QMUIPullRefreshLayout">
+        <!-- RefreshView的初始offset -->
+        <attr name="qmui_refresh_init_offset" format="dimension"/>
+        <!-- 刷新时RefreshView的offset -->
+        <attr name="qmui_refresh_end_offset" format="dimension"/>
+        <!-- TargetView(ListView或者ScrollView等)的初始位置 -->
+        <attr name="qmui_target_init_offset" format="dimension"/>
+        <!-- 刷新时TargetView(ListView或者ScrollView等)的位置-->
+        <attr name="qmui_target_refresh_offset" format="dimension"/>
+        <!-- 是否自动根据RefreshView的高度计算RefreshView的初始位置-->
+        <attr name="qmui_auto_calculate_refresh_init_offset" format="boolean"/>
+        <!-- 是否自动根据TargetView在刷新时的位置计算RefreshView的结束位置-->
+        <attr name="qmui_auto_calculate_refresh_end_offset" format="boolean"/>
+        <!-- TargetView的刷新位置与RefreshView高度相等-->
+        <attr name="qmui_equal_target_refresh_offset_to_refresh_view_height" format="boolean"/>
+    </declare-styleable>
+    <attr name="QMUIPullRefreshLayoutStyle" format="reference"/>
+
+    <!--************** QMUIRadiusImageView ****************-->
+    <attr name="qmui_border_width" format="dimension"/>
+    <attr name="qmui_border_color" format="color"/>
+    <attr name="qmui_selected_mask_color" format="color"/>
+    <attr name="qmui_selected_border_color" format="color"/>
+    <attr name="qmui_selected_border_width" format="dimension"/>
+    <attr name="qmui_corner_radius" format="dimension"/>
+    <attr name="qmui_is_oval" format="boolean"/>
+    <attr name="qmui_is_circle" format="boolean"/>
+    <attr name="qmui_is_touch_select_mode_enabled" format="boolean"/>
+    <declare-styleable name="QMUIRadiusImageView">
+        <attr name="qmui_border_width"/>
+        <attr name="qmui_border_color"/>
+        <attr name="qmui_selected_mask_color"/>
+        <attr name="qmui_selected_border_color"/>
+        <attr name="qmui_selected_border_width"/>
+        <attr name="qmui_corner_radius"/>
+        <attr name="qmui_is_oval"/>
+        <attr name="qmui_is_circle"/>
+        <attr name="qmui_is_touch_select_mode_enabled"/>
+    </declare-styleable>
+    <declare-styleable name="QMUIRadiusImageView2">
+        <attr name="qmui_border_width"/>
+        <attr name="qmui_border_color"/>
+        <attr name="qmui_selected_mask_color"/>
+        <attr name="qmui_selected_border_color"/>
+        <attr name="qmui_selected_border_width"/>
+        <attr name="qmui_corner_radius"/>
+        <attr name="qmui_is_circle"/>
+        <attr name="qmui_is_touch_select_mode_enabled"/>
+    </declare-styleable>
+
+    <attr name="QMUIRadiusImageViewStyle" format="reference"/>
+
+    <!--************** QMUIQQFaceView ****************-->
+    <declare-styleable name="QMUIQQFaceView">
+        <attr name="android:textColor"/>
+        <attr name="android:textSize"/>
+        <attr name="android:singleLine"/>
+        <attr name="android:maxLines"/>
+        <attr name="android:lineSpacingExtra"/>
+        <attr name="android:ellipsize"/>
+        <attr name="android:maxWidth"/>
+        <attr name="android:text"/>
+        <attr name="qmui_special_drawable_padding" format="dimension"/>
+        <attr name="qmui_more_action_text" format="string"/>
+        <attr name="qmui_more_action_color" format="color"/>
+        <attr name="qmui_more_action_bg_color" format="color"/>
+    </declare-styleable>
+    <attr name="QMUIQQFaceStyle" format="reference"/>
+
+    <!-- QMUIFloatLayout start -->
+    <attr name="qmui_childHorizontalSpacing" format="dimension"/>
+    <attr name="qmui_childVerticalSpacing" format="dimension"/>
+    <attr name="qmui_maxNumber" format="integer"/>
+    <declare-styleable name="QMUIFloatLayout">
+        <attr name="android:gravity"/>
+        <attr name="qmui_childHorizontalSpacing"/>
+        <attr name="qmui_childVerticalSpacing"/>
+        <attr name="android:maxLines"/>
+        <attr name="qmui_maxNumber"/>
+    </declare-styleable>
+    <!-- QMUIFloatLayout end -->
+
+    <!-- EmptyView start -->
+    <declare-styleable name="QMUIEmptyView">
+        <attr name="qmui_show_loading" format="boolean"/>
+        <attr name="qmui_title_text" format="string"/>
+        <attr name="qmui_detail_text" format="string"/>
+        <attr name="qmui_btn_text" format="string"/>
+    </declare-styleable>
+    <!-- EmptyView end -->
+
+    <!-- QMUIProgressBar start -->
+    <declare-styleable name="QMUIProgressBar">
+        <attr name="qmui_type" format="enum">
+            <enum name="type_rect" value="0"/>
+            <enum name="type_round_rect" value="1"/>
+            <enum name="type_circle" value="2"/>
+            <enum name="type_fill_circle" value="3"/>
+        </attr>
+        <attr name="qmui_progress_color" format="color"/>
+        <attr name="qmui_background_color" format="color"/>
+        <attr name="qmui_max_value" format="integer"/>
+        <attr name="qmui_value" format="integer"/>
+        <attr name="qmui_stroke_width" format="dimension"/>
+        <attr name="qmui_stroke_round_cap" format="boolean"/>
+        <attr name="android:textSize"/>
+        <attr name="android:textColor"/>
+    </declare-styleable>
+    <!-- QMUIProgressBar end -->
+
+    <!-- FontFitTextView start -->
+    <attr name="qmui_minTextSize" format="dimension"/>
+    <attr name="qmui_maxTextSize" format="dimension"/>
+    <declare-styleable name="QMUIFontFitTextView">
+        <attr name="qmui_minTextSize"/>
+        <attr name="qmui_maxTextSize"/>
+    </declare-styleable>
+    <!-- FontFitTextView end -->
+
+    <declare-styleable name="QMUILinkTextView">
+        <attr name="qmui_linkBackgroundColor" format="color"/>
+        <attr name="qmui_linkTextColor" format="color"/>
+    </declare-styleable>
+
+    <!-- QMUICollapsingTopBarLayout start -->
+    <declare-styleable name="QMUICollapsingTopBarLayout">
+        <attr name="qmui_expandedTitleMargin" format="dimension"/>
+        <attr name="qmui_expandedTitleMarginStart" format="dimension"/>
+        <attr name="qmui_expandedTitleMarginTop" format="dimension"/>
+        <attr name="qmui_expandedTitleMarginEnd" format="dimension"/>
+        <attr name="qmui_expandedTitleMarginBottom" format="dimension"/>
+        <attr name="qmui_expandedTitleTextAppearance" format="reference"/>
+        <attr name="qmui_collapsedTitleTextAppearance" format="reference"/>
+        <attr name="qmui_contentScrim" format="color"/>
+        <attr name="qmui_followTopBarCommonSkin" format="boolean"/>
+        <attr name="qmui_statusBarScrim" format="color"/>
+        <attr name="qmui_topBarId" format="reference"/>
+        <attr name="qmui_scrimVisibleHeightTrigger" format="dimension"/>
+        <attr name="qmui_scrimAnimationDuration" format="integer"/>
+        <attr name="qmui_collapsedTitleGravity">
+            <flag name="top" value="0x30"/>
+            <flag name="bottom" value="0x50"/>
+            <flag name="left" value="0x03"/>
+            <flag name="right" value="0x05"/>
+            <flag name="center_vertical" value="0x10"/>
+            <flag name="fill_vertical" value="0x70"/>
+            <flag name="center_horizontal" value="0x01"/>
+            <flag name="center" value="0x11"/>
+            <flag name="start" value="0x00800003"/>
+            <flag name="end" value="0x00800005"/>
+        </attr>
+        <attr name="qmui_expandedTitleGravity">
+            <flag name="top" value="0x30"/>
+            <flag name="bottom" value="0x50"/>
+            <flag name="left" value="0x03"/>
+            <flag name="right" value="0x05"/>
+            <flag name="center_vertical" value="0x10"/>
+            <flag name="fill_vertical" value="0x70"/>
+            <flag name="center_horizontal" value="0x01"/>
+            <flag name="center" value="0x11"/>
+            <flag name="start" value="0x00800003"/>
+            <flag name="end" value="0x00800005"/>
+        </attr>
+        <attr name="qmui_titleEnabled" format="boolean"/>
+        <attr name="qmui_title"/>
+    </declare-styleable>
+    <declare-styleable name="QMUICollapsingTopBarLayout_Layout">
+        <attr name="qmui_layout_collapseMode">
+            <enum name="none" value="0"/>
+            <enum name="pin" value="1"/>
+            <enum name="parallax" value="2"/>
+        </attr>
+        <attr name="qmui_layout_collapseParallaxMultiplier" format="float"/>
+    </declare-styleable>
+    <!-- QMUICollapsingTopBarLayout end -->
+
+    <!-- QMUISlider start -->
+    <declare-styleable name="QMUISlider">
+        <attr name="qmui_slider_bar_height" format="dimension"/>
+        <attr name="qmui_slider_bar_normal_color" format="color"/>
+        <attr name="qmui_slider_bar_progress_color" format="color"/>
+        <attr name="qmui_slider_bar_record_progress_color" format="color"/>
+        <attr name="qmui_slider_bar_tick_count" format="integer"/>
+        <attr name="qmui_slider_bar_thumb_size" format="dimension"/>
+        <attr name="qmui_slider_bar_thumb_style_attr" format="string"/>
+        <attr name="qmui_slider_bar_use_clip_children_by_developer" format="boolean"/>
+        <attr name="qmui_slider_bar_padding_hor_for_thumb_shadow" format="dimension"/>
+        <attr name="qmui_slider_bar_padding_ver_for_thumb_shadow" format="dimension"/>
+        <attr name="qmui_slider_bar_constraint_thumb_in_moving" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="QMUISeekBar">
+        <attr name="qmui_seek_bar_tick_height" format="dimension"/>
+        <attr name="qmui_seek_bar_tick_width" format="dimension"/>
+    </declare-styleable>
+    <attr name="QMUISliderStyle" format="reference"/>
+    <attr name="QMUISeekBarStyle" format="reference"/>
+    <attr name="QMUISliderThumbStyle" format="reference"/>
+    <!-- QMUISlider end -->
+
+    <!-- QMUIPullLayout start -->
+    <declare-styleable name="QMUIPullLayout">
+        <attr name="qmui_pull_enable_edge">
+            <flag name="left" value="0x1"/>
+            <flag name="top" value="0x2"/>
+            <flag name="right" value="0x4"/>
+            <flag name="bottom" value="0x8"/>
+        </attr>
+    </declare-styleable>
+    <attr name="QMUIPullLayoutStyle" format="reference"/>
+
+    <declare-styleable name="QMUIPullLayout_Layout">
+        <attr name="qmui_is_target" format="boolean"/>
+        <attr name="qmui_pull_edge" format="enum">
+            <enum name="left" value="0x1"/>
+            <enum name="top" value="0x2"/>
+            <enum name="right" value="0x4"/>
+            <enum name="bottom" value="0x8"/>
+        </attr>
+        <attr name="qmui_action_view_init_offset" format="dimension"/>
+        <attr name="qmui_target_view_trigger_offset" format="dimension|enum">
+            <enum name="wrap" value="-2" />
+        </attr>
+        <attr name="qmui_can_over_pull" format="boolean"/>
+        <attr name="qmui_pull_rate" format="float"/>
+        <attr name="qmui_received_fling_fraction" format="float"/>
+        <attr name="qmui_need_receive_fling_from_target_view" format="boolean"/>
+        <attr name="qmui_scroll_speed_per_pixel" format="integer"/>
+        <attr name="qmui_trigger_until_scroll_to_trigger_offset" format="boolean"/>
+        <attr name="qmui_scroll_to_trigger_offset_after_touch_up" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="QMUIPullLoadMoreView">
+        <attr name="qmui_pull_load_more_loading_size" format="dimension"/>
+        <attr name="qmui_pull_load_more_text_size" format="dimension"/>
+        <attr name="qmui_pull_load_more_arrow_text_gap" format="dimension"/>
+        <attr name="qmui_pull_load_more_height" format="dimension"/>
+        <attr name="qmui_pull_load_more_arrow" format="reference"/>
+        <attr name="qmui_pull_load_more_pull_text" format="string"/>
+        <attr name="qmui_pull_load_more_release_text" format="string"/>
+        <attr name="qmui_skin_support_pull_load_more_bg_color"/>
+        <attr name="qmui_skin_support_pull_load_more_loading_tint_color"/>
+        <attr name="qmui_skin_support_pull_load_more_arrow_tint_color"/>
+        <attr name="qmui_skin_support_pull_load_more_text_color"/>
+    </declare-styleable>
+    <attr name="QMUIPullLoadMoreStyle" format="reference"/>
+
+    <!-- QMUIPullLayout end -->
+
+    <declare-styleable name="QMUIPriorityLinearLayout_Layout">
+        <attr name="qmui_layout_priority" format="enum">
+            <enum name="disposable" value="1"/>
+            <enum name="mini_content_protection" value="2"/>
+            <enum name="incompressible" value="3"/>
+        </attr>
+        <attr name="qmui_layout_miniContentProtectionSize" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="QMUITextAppearance">
+        <attr name="android:textSize"/>
+        <attr name="android:textColor"/>
+        <attr name="android:textColorHint"/>
+        <attr name="android:textStyle"/>
+        <attr name="android:typeface"/>
+        <attr name="textAllCaps"/>
+        <attr name="android:shadowColor"/>
+        <attr name="android:shadowDy"/>
+        <attr name="android:shadowDx"/>
+        <attr name="android:shadowRadius"/>
+    </declare-styleable>
+</resources>

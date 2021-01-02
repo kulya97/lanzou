@@ -2,6 +2,8 @@ package com.kulya.lanzou.util;
 
 import android.os.Bundle;
 
+import com.qmuiteam.qmui.arch.QMUIActivity;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 类描述：
 创建时间：2019/8/7 22:35
 */
-public class baseactivity extends AppCompatActivity {
+public class baseactivity extends QMUIActivity {
     private  long lastClickTime;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
