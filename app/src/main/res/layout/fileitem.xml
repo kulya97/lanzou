@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/buttonColor">
+    android:background="@color/buttonColor"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="55dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -16,29 +16,68 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
             android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/filename"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|right"
+            android:layout_marginLeft="6dp"
             android:layout_weight="1"
-            android:maxEms="11"
-            android:maxLines="1"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/filename"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxEms="11"
+                android:maxLines="1"
+                android:textSize="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/downs"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/red"
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+
+                    android:textColor="@color/textColor"
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:id="@+id/size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textColor"
+                    android:textSize="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <CheckBox
-            style="@style/mycheckbox"
             android:id="@+id/checkbox"
+            style="@style/mycheckbox"
+            android:clickable="false"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginRight="0dp"
             android:layout_gravity="center"
-            android:paddingRight="0dp"/>
+            android:layout_marginRight="0dp"
+            android:paddingRight="0dp"
+            android:visibility="invisible" />
     </LinearLayout>
+
     <View
-        android:background="@color/windowColor"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/windowColor" />
 </LinearLayout>

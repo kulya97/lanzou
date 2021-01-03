@@ -5,6 +5,7 @@
     <color name="colorAccent">#1a1a1a</color>
     <color name="textColor">#8a000000</color>
     <color name="windowColor">#f1f1f1</color>
+    <color name="tipColor">#f1f1f1</color>
     <color name="buttonColor">#ffffff</color>
-    <color name="tipscolor">#ff0000</color>
+    <color name="red">#ff0000</color>
 </resources>

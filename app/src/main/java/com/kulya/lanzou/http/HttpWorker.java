@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.kulya.lanzou.asyncTask.FileProgressRequestBody;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.util.Myapplication;
 
@@ -59,7 +60,7 @@ public class HttpWorker {
     }
 
     //登陆  formhash可能会变
-    private boolean LoginSync(final String username, final String password) throws IOException, JSONException {
+    private boolean LoginSync(final String username, final String password) throws Exception {
         //作废，暂时不用
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[4];
         rs[0] = new OkHttpUtil.RequestData("formhash", "5dc76a08");
@@ -82,7 +83,7 @@ public class HttpWorker {
     }
 
     //创建页面文件夹信息 task47
-    private List<FileItem> getFolderInfoSync(final String folder_id) throws IOException, JSONException {
+    private List<FileItem> getFolderInfoSync(final String folder_id) throws Exception {
         List<FileItem> list = new ArrayList<>();
         list.clear();
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
@@ -102,7 +103,7 @@ public class HttpWorker {
     }
 
     //创建页面文件信息 task5
-    private List<FileItem> getFileInfoSync(final String folder_id) throws IOException, JSONException {
+    private List<FileItem> getFileInfoSync(final String folder_id) throws Exception {
         List<FileItem> list = new ArrayList<>();
         list.clear();
         for (int page = 1; page < 200; page++) {
@@ -119,9 +120,12 @@ public class HttpWorker {
                 JSONObject fileObject = jsonArray.getJSONObject(i);
                 String name = fileObject.getString("name_all");
                 String file_id = fileObject.getString("id");
-                 String fileUrl = getFileHrefSync(file_id);
-                FileItem item=new FileItem(name, FileItem.ISFILE, file_id);
+                String fileUrl = getFileHrefSync(file_id);
+                FileItem item = new FileItem(name, FileItem.ISFILE, file_id);
                 item.setFileUrl(fileUrl);
+                item.setTime(fileObject.getString("time"));
+                item.setSizes(fileObject.getString("size"));
+                item.setDowns(fileObject.getString("downs"));
                 list.add(item);
             }
         }
@@ -129,7 +133,7 @@ public class HttpWorker {
     }
 
     //新建文件夹 task2
-    private boolean setNewFolderSync(String uri, String folder_name) throws IOException, JSONException {
+    private boolean setNewFolderSync(String uri, String folder_name) throws Exception {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
         String folder_ids[] = uri.split("=");
         String parent_id = folder_ids[folder_ids.length - 1];
@@ -149,12 +153,17 @@ public class HttpWorker {
     }
 
     //上传文件 task1
-    private boolean uploadFileSync(String file_uri, String folder_id) throws IOException {
+    private boolean uploadFileSync(String file_uri, String folder_id, UpLoadCallbackListener listener) throws Exception {
         OkHttpClient client = OkHttpUtil.getmOkHttpClient2();
         File file = new File(file_uri);
         String str[] = file_uri.split("/");
         String name = str[str.length - 1];
-        RequestBody fileBody = RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=utf-8"), file);
+        RequestBody fileBody = new FileProgressRequestBody("application/x-www-form-urlencoded;charset=utf-8", file, new FileProgressRequestBody.ProgressListener() {
+            @Override
+            public void transferred(double size) {
+                listener.Progress(size);
+            }
+        });
 
         //定义请求体，前面三个为表单中的string类型参数，第四个为需要上传的文件
         MultipartBody mBody = new MultipartBody.Builder()
@@ -178,11 +187,10 @@ public class HttpWorker {
             return true;
         }
         return false;
-
     }
 
     //task3 删除文件夹 task3
-    private boolean deleteFolderSync(String holder_id) throws JSONException, IOException {
+    private boolean deleteFolderSync(String holder_id) throws Exception {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
         rs[0] = new OkHttpUtil.RequestData("task", "3");
         rs[1] = new OkHttpUtil.RequestData("folder_id", holder_id);
@@ -199,7 +207,7 @@ public class HttpWorker {
     }
 
     //task6 删除文件 task6
-    private boolean deleteFileSync(String file_id) throws IOException, JSONException {
+    private boolean deleteFileSync(String file_id) throws Exception {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
         rs[0] = new OkHttpUtil.RequestData("task", "6");
         rs[1] = new OkHttpUtil.RequestData("file_id", file_id);
@@ -216,7 +224,7 @@ public class HttpWorker {
     }
 
     //下载文件
-    private void downFileSync(String fileName, String fileId) throws IOException, JSONException {
+    private void downFileSync(String fileName, String fileId) throws Exception {
         String FileHref = getFileHrefSync(fileId);
         String FileSecondHref = getFileSecondHref(FileHref);
         String DownKey = GetDownKey(FileSecondHref);
@@ -226,7 +234,7 @@ public class HttpWorker {
     }
 
     //获取文件短链接 task22
-    private String getFileHrefSync(String file_id) throws IOException, JSONException {
+    private String getFileHrefSync(String file_id) throws Exception {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[2];
         rs[0] = new OkHttpUtil.RequestData("task", "22");
         rs[1] = new OkHttpUtil.RequestData("file_id", file_id);
@@ -241,9 +249,9 @@ public class HttpWorker {
     }
 
     //获取二级短链接https://www.lanzous.com/ifdfhdsad,得到https://www.lanzous.com/?fnadjic_c
-    private String getFileSecondHref(String file_href) throws IOException, JSONException {
+    private String getFileSecondHref(String file_href) throws Exception {
         String data = OkHttpUtil.getSyncString(file_href);
-        if (data.indexOf("来晚啦...文件取消分享了") >= 0) {
+        if (data.contains("来晚啦...文件取消分享了")) {
             throw new IOException();
         }
         Document document = Jsoup.parse(data);
@@ -252,7 +260,7 @@ public class HttpWorker {
     }
 
     //解析https://www.lanzous.com/？fnadjic_c得到第二个
-    private String GetDownKey(String fileSecondHref) throws IOException, JSONException {
+    private String GetDownKey(String fileSecondHref) throws Exception {
         final String uri = "https://www.lanzous.com/" + fileSecondHref;
         String data = OkHttpUtil.getSyncString(uri);
         Document document = Jsoup.parse(data);
@@ -263,7 +271,7 @@ public class HttpWorker {
     }
 
     //得到一级域名
-    private String GetDownUri(String fileSecondHref, String sign) throws IOException, JSONException {
+    private String GetDownUri(String fileSecondHref, String sign) throws Exception {
         OkHttpUtil.RequestData[] rs = new OkHttpUtil.RequestData[3];
         rs[0] = new OkHttpUtil.RequestData("action", "downprocess");
         rs[1] = new OkHttpUtil.RequestData("sign", sign);
@@ -282,15 +290,13 @@ public class HttpWorker {
         header[10] = new OkHttpUtil.RequestData("Sec-Fetch-Site", "same-origin");
         header[11] = new OkHttpUtil.RequestData("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
         header[12] = new OkHttpUtil.RequestData("X-Requested-With", "XMLHttpRequest");
-        Log.d("66665", "1");
         String data = OkHttpUtil.postSyncString(UriUtil.GETDOWNURI, rs, header);
         JSONObject jsonObject = new JSONArray("[" + data + "]").getJSONObject(0);
-        Log.d("66665", "2");
         return jsonObject.getString("url");
     }
 
     //解析二级域名
-    private String GetDownSecondUri(String downUri) throws IOException {
+    private String GetDownSecondUri(String downUri) throws Exception {
         String address = UriUtil.DOWNFILEHEAD + downUri;
         String path = UriUtil.DOWNFILEPATH + downUri;
         OkHttpUtil.RequestData[] header = new OkHttpUtil.RequestData[11];
@@ -329,12 +335,6 @@ public class HttpWorker {
         void onFinish();
     }
 
-    //获取短链接接口
-    public interface FileHrefCallbackListener {
-        String onError(Exception e);
-
-        String onFinish(String file_href);
-    }
 
     //页面刷新监听接口
     public interface PageUpdatePageCallbackListener {
@@ -348,6 +348,14 @@ public class HttpWorker {
         void onError(Exception e);
 
         void onFinish();
+    }
+
+    public interface UpLoadCallbackListener {
+        void onError(int count);
+
+        void Progress(double progress);
+
+        void onFinish(int count);
     }
 
 
@@ -516,7 +524,67 @@ public class HttpWorker {
     }
 
     //上传文件
-    public static Boolean sendFiles(String file_uri, String folder_id) throws IOException {
-        return getInstance().uploadFileSync(file_uri, folder_id);
+    public static void sendFile(String file_uri, String folder_id, UpLoadCallbackListener listener) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean aBoolean = getInstance().uploadFileSync(file_uri, folder_id, listener);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (aBoolean) {
+                                listener.onFinish(0);
+                            } else
+                                listener.onError(0);
+                        }
+                    });
+                } catch (Exception e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(0);
+                            e.printStackTrace();
+                        }
+                    });
+
+                }
+            }
+        }).start();
+    }
+
+    //上传文件
+    public static void sendFiles(List<String> file_uris, String folder_id, UpLoadCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0;i< file_uris.size() ;i++) {
+                    try {
+                        boolean aBoolean = getInstance().uploadFileSync(file_uris.get(i), folder_id, listener);
+                        int finalI = i;
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (aBoolean) {
+                                    listener.onFinish(finalI);
+                                } else
+                                    listener.onError(finalI);
+                            }
+                        });
+                    }
+                    catch (Exception e) {
+                        int finalI1 = i;
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onError(finalI1);
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            }
+        }).start();
     }
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.qmuiteam.qmui.widget.QMUIWindowInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
@@ -13,17 +15,30 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.qmuiteam.qmui.widget.QMUITopBarLayout
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/topbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/qmui_topbar_height"
+                android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:fitsSystemWindows="true" />
+
+            <com.qmuiteam.qmui.widget.QMUIProgressBar
+                android:visibility="gone"
+                android:id="@+id/fileProgress"
+                app:qmui_max_value="100"
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <com.qmuiteam.qmui.widget.QMUIProgressBar
+                android:visibility="gone"
+                android:id="@+id/allProgress"
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fileList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent" />
         </LinearLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

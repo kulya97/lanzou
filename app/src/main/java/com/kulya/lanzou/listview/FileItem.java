@@ -12,7 +12,36 @@ public class FileItem {
     private String filename;
     private int fileORHolder;
     private String id;
-    private boolean isCheck;
+    private boolean isCheck=false;
+    private String downs;
+    private String time;
+
+    public String getDowns() {
+        return downs;
+    }
+
+    public void setDowns(String downs) {
+        this.downs = downs;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getSizes() {
+        return sizes;
+    }
+
+    public void setSizes(String sizes) {
+        this.sizes = sizes;
+    }
+
+    private String sizes;
+
 
     public String getFileUrl() {
         return fileUrl;

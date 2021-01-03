@@ -2,38 +2,42 @@ package com.kulya.lanzou;
 
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.kulya.lanzou.asyncTask.uploadTask;
 import com.kulya.lanzou.http.HttpWorker;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.listview.FileListAdapter;
-import com.kulya.lanzou.util.Myapplication;
 import com.kulya.lanzou.util.activitycollector;
 import com.kulya.lanzou.util.baseactivity;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 import com.qmuiteam.qmui.util.QMUIStatusBarHelper;
-import com.qmuiteam.qmui.widget.QMUITopBar;
-import com.qmuiteam.qmui.widget.QMUITopBarLayout;
+import com.qmuiteam.qmui.widget.QMUIProgressBar;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,39 +47,33 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnRefreshListener {
     @BindView(R.id.topbar)
-    QMUITopBarLayout topbar;
+    Toolbar topbar;
     @BindView(R.id.fileList)
     RecyclerView fileListView;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.newFolder)
     FloatingActionButton newFolder;
+
     String whitelist[] = new String[]{".doc", ".docx", ".zip", ".rar", ".apk", ".ipa", ".txt",
             ".exe", ".7z", ".e", ".z", ".ct", ".ke", ".cetrainer", ".db", ".tar", ".pdf", ".w3x",
             ".epub", ".mobi", ".azw", ".azw3", ".osk", ".osz", ".xpa", ".cpk", ".lua", ".jar",
             ".dmg", ".ppt", ".pptx", ".xls", ".xlsx", ".mp3", ".ipa", ".iso", ".img", ".gho",
             ".ttf", ".ttc", ".txf", ".dwg", ".bat", ".dll"};
     int REQUESTCODE_FROM_ACTIVITY = 1000;
+    @BindView(R.id.fileProgress)
+    QMUIProgressBar fileProgress;
+    @BindView(R.id.allProgress)
+    QMUIProgressBar allProgress;
     private List<FileItem> fileList = new ArrayList<>();
     private List<String> history = new ArrayList<>();
     private FileListAdapter adapter;
     private boolean ischeck;
     private boolean isMultipleChoice = false;
-    uploadTask.SendCallbackListener listener = new uploadTask.SendCallbackListener() {
-        @Override
-        public void onError(int[] num) {
-            Toast.makeText(Myapplication.getContext(), "部分文件不可传，已成功" + num[0] + "个", Toast.LENGTH_SHORT).show();
-            RefreshPage();
-        }
-
-        @Override
-        public void onFinish(int[] num) {
-            Toast.makeText(Myapplication.getContext(), num[0] + "个成功，" + num[1] + "个失败", Toast.LENGTH_SHORT).show();
-            RefreshPage();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,94 +90,100 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
         }
     }
 
-//    //设置标题栏菜单
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.titlemenu, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    //标题栏菜单点击事件
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.new_menu:
-//                final QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(MainActivity.this);
-//                builder.setTitle("创建文件夹")
-//                        .setPlaceholder("在此输入文件夹名称")
-//                        .setInputType(InputType.TYPE_CLASS_TEXT)
-//                        .addAction("取消", new QMUIDialogAction.ActionListener() {
-//                            @Override
-//                            public void onClick(QMUIDialog dialog, int index) {
-//                                dialog.dismiss();
-//                            }
-//                        })
-//                        .addAction("确定", new QMUIDialogAction.ActionListener() {
-//                            @Override
-//                            public void onClick(QMUIDialog dialog, int index) {
-//                                String text = builder.getEditText().getText().toString();
-//                                if (text != null && text.length() > 0) {
-//                                    String uri = history.get(history.size() - 1);
-//                                    addFolder(uri, text);
-//                                    dialog.dismiss();
-//                                } else {
-//                                    Toast.makeText(MainActivity.this, "请填入文件夹名", Toast.LENGTH_SHORT).show();
-//                                }
-//                            }
-//                        })
-//                        .show();
-//                break;
-//            case R.id.select_menu:
-//                for (FileItem lis : fileList) {
-//                    lis.setIsCheck(!ischeck);
-//                }
-//                ischeck = !ischeck;
-//                adapter.notifyDataSetChanged();
-//                break;
-//            case R.id.delete_menu:
-//                for (FileItem lis : fileList) {
-//                    if (lis.getIsCheck()) {
-//                        if (lis.getFileORHolder() == FileItem.ISFILE) {
-//                            deleteFile_(lis.getId());
-//                        } else if (lis.getFileORHolder() == FileItem.ISHOLDER) {
-//                            String folder_href = lis.getId();
-//                            String folder_ids[] = folder_href.split("=");
-//                            String folder_id = folder_ids[folder_ids.length - 1];
-//                            deleteFolder(folder_id);
-//                        }
-//                    }
-//                }
-//                break;
-//            case R.id.down_menu:
-//                for (FileItem lis : fileList) {
-//
-//                    if (lis.getFileORHolder() == FileItem.ISFILE) {
-//                        if (lis.getIsCheck()) {
-//                            Log.d("hjy", lis.getFilename());
-//                            HttpWorker.FileDown(lis.getFilename(), lis.getId());
-//                        }
-//                    }
-//                }
-//                break;
-//            case R.id.share:
-//                Uri uri = Uri.parse("https://github.com/kulya91/lanzou");
-//                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-//                startActivity(intent);
-//                break;
-//            default:
-//                break;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    //设置标题栏菜单
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.titlemenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //标题栏菜单点击事件
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_menu:
+                final QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(MainActivity.this);
+                builder.setTitle("创建文件夹")
+                        .setPlaceholder("在此输入文件夹名称")
+                        .setInputType(InputType.TYPE_CLASS_TEXT)
+                        .addAction("取消", new QMUIDialogAction.ActionListener() {
+                            @Override
+                            public void onClick(QMUIDialog dialog, int index) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .addAction("确定", new QMUIDialogAction.ActionListener() {
+                            @Override
+                            public void onClick(QMUIDialog dialog, int index) {
+                                String text = builder.getEditText().getText().toString();
+                                if (text != null && text.length() > 0) {
+                                    String uri = history.get(history.size() - 1);
+                                    addFolder(uri, text);
+                                    dialog.dismiss();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "请填入文件夹名", LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .show();
+                break;
+            case R.id.select_menu:
+                if (!adapter.getSelectedMode()) {
+                    break;
+                }
+                for (FileItem lis : fileList) {
+                    lis.setIsCheck(!ischeck);
+                }
+                ischeck = !ischeck;
+                adapter.notifyDataSetChanged();
+                break;
+            case R.id.delete_menu:
+                fileList = adapter.getSelectedItem();
+                for (FileItem lis : fileList) {
+                    if (lis.getIsCheck()) {
+                        if (lis.getFileORHolder() == FileItem.ISFILE) {
+                            deleteFile_(lis.getId());
+                        } else if (lis.getFileORHolder() == FileItem.ISHOLDER) {
+                            String folder_href = lis.getId();
+                            String folder_ids[] = folder_href.split("=");
+                            String folder_id = folder_ids[folder_ids.length - 1];
+                            deleteFolder(folder_id);
+                        }
+                    }
+                }
+                break;
+            case R.id.down_menu:
+                fileList = adapter.getSelectedItem();
+                for (FileItem lis : fileList) {
+
+                    if (lis.getFileORHolder() == FileItem.ISFILE) {
+                        if (lis.getIsCheck()) {
+                            Log.d("hjy", lis.getFilename());
+                            HttpWorker.FileDown(lis.getFilename(), lis.getId());
+                        }
+                    }
+                }
+                break;
+            case R.id.share:
+                Uri uri = Uri.parse("https://github.com/kulya91/lanzou");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void initView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         fileListView.setLayoutManager(linearLayoutManager);
-        adapter = new FileListAdapter(R.layout.fileitem,fileList);
-        adapter.setOnItemClickListener(new itemOnClick());
+        adapter = new FileListAdapter(R.layout.fileitem, fileList);
+        adapter.setOnItemClickListener2(new itemOnClick());
         adapter.setAnimationEnable(true);
         fileListView.setAdapter(adapter);
         swipeRefreshLayout.setOnRefreshListener(this);
+        setSupportActionBar(topbar);
     }
 
     //悬浮按钮点击事件
@@ -202,10 +206,36 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUESTCODE_FROM_ACTIVITY) {
+                fileProgress.setVisibility(View.VISIBLE);
+                allProgress.setVisibility(View.VISIBLE);
+                fileProgress.setProgress(0,false);
+                allProgress.setProgress(0,false);
                 List<String> list = data.getStringArrayListExtra("paths");
                 String ss[] = history.get(history.size() - 1).split("=");
                 String folder_id = ss[ss.length - 1];
-                new uploadTask(folder_id, listener).execute(list);
+                int filecount = list.size();
+                allProgress.setMaxValue(filecount);
+                HttpWorker.sendFiles(list, folder_id, new HttpWorker.UpLoadCallbackListener() {
+                    @Override
+                    public void onError(int count) {
+                        Log.d("7777777777771", "onError: ");
+                        fileProgress.setProgress(0,false);
+
+                    }
+
+                    @Override
+                    public void Progress(double progress) {
+                        Log.d("7777777777772", String.valueOf(progress));
+                        fileProgress.setProgress((int) progress);
+                    }
+
+                    @Override
+                    public void onFinish(int count) {
+                        allProgress.setProgress(count+1);
+                        fileProgress.setProgress(0,false);
+                        Log.d("7777777777773", "onFinish(): ");
+                    }
+                });
             }
         }
     }
@@ -222,13 +252,10 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if (isMultipleChoice) {
-                    for (FileItem lis : fileList) {
-                        lis.setIsCheck(false);
-                    }
-                    isMultipleChoice = false;
+                if (adapter.getSelectedMode()) {
+                    adapter.setSelectedMode(false);
+                    return false;
                 }
-
                 if (history.size() <= 1) {
                     activitycollector.finishall();
                     System.exit(0);
@@ -240,13 +267,12 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
         return super.onKeyUp(keyCode, event);
     }
 
-
     //listitem点击事件,打开文件夹，唤起详情页
-
-    class itemOnClick implements OnItemClickListener {
+    class itemOnClick implements FileListAdapter.OnClickListener {
         @Override
         public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-          //  Toast.makeText(MainActivity.this,position,Toast.LENGTH_SHORT).show();
+            //  Toast.makeText(MainActivity.this,position,Toast.LENGTH_SHORT).show();
+            // Log.d("121313221", String.valueOf(position));
             final FileItem fileItem = fileList.get(position);
             if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
                 openPage(fileItem.getId());
@@ -272,7 +298,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                                     case "url":
                                         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                         cm.setText(fileItem.getFileUrl());
-                                        Toast.makeText(MainActivity.this, "复制到剪切板", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this, "复制到剪切板", LENGTH_SHORT).show();
                                         break;
                                     default:
                                         break;
@@ -281,6 +307,11 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                             }
                         }).build().show();
             }
+        }
+
+        @Override
+        public boolean onItemLongClick(@NonNull BaseQuickAdapter adapter, @NonNull View view, int position) {
+            return false;
         }
     }
 
@@ -304,6 +335,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                 ischeck = false;
                 adapter.setList(fileList);
                 adapter.notifyDataSetChanged();
+
             }
         });
     }
