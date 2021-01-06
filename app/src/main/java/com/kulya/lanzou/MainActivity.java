@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kulya.lanzou.http.HttpWorker;
 import com.kulya.lanzou.listview.FileItem;
@@ -37,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -49,7 +49,7 @@ import butterknife.OnClick;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     @BindView(R.id.topbar)
     Toolbar topbar;
     @BindView(R.id.fileList)
@@ -179,9 +179,8 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     private void initView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         fileListView.setLayoutManager(linearLayoutManager);
-        adapter = new FileListAdapter( fileList);
+        adapter = new FileListAdapter(fileList);
         adapter.setOnItemClickListener2(new itemOnClick());
-        //adapter.setAnimationEnable(true);
         fileListView.setAdapter(adapter);
         swipeRefreshLayout.setOnRefreshListener(this);
         setSupportActionBar(topbar);
@@ -209,17 +208,29 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
             if (requestCode == REQUESTCODE_FROM_ACTIVITY) {
                 fileProgress.setVisibility(View.VISIBLE);
                 allProgress.setVisibility(View.VISIBLE);
-                fileProgress.setProgress(0,false);
-                allProgress.setProgress(0,false);
+                fileProgress.setQMUIProgressBarTextGenerator(new QMUIProgressBar.QMUIProgressBarTextGenerator() {
+                    @Override
+                    public String generateText(QMUIProgressBar progressBar, int value, int maxValue) {
+                        return value + "/" + maxValue;
+                    }
+                });
+                allProgress.setQMUIProgressBarTextGenerator(new QMUIProgressBar.QMUIProgressBarTextGenerator() {
+                    @Override
+                    public String generateText(QMUIProgressBar progressBar, int value, int maxValue) {
+                        return value + "/" + maxValue;
+                    }
+                });
+                fileProgress.setProgress(0, false);
+                allProgress.setProgress(0, false);
                 List<String> list = data.getStringArrayListExtra("paths");
                 String ss[] = history.get(history.size() - 1).split("=");
                 String folder_id = ss[ss.length - 1];
-                int filecount = list.size();
-                allProgress.setMaxValue(filecount);
+                int fileCount = list.size();
+                allProgress.setMaxValue(fileCount);
                 HttpWorker.sendFiles(list, folder_id, new HttpWorker.UpLoadCallbackListener() {
                     @Override
                     public void onError(int count) {
-                        fileProgress.setProgress(0,false);
+                        fileProgress.setProgress(0, false);
 
                     }
 
@@ -230,8 +241,13 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
 
                     @Override
                     public void onFinish(int count) {
-                        allProgress.setProgress(count+1);
-                        fileProgress.setProgress(0,false);
+                        allProgress.setProgress(count + 1);
+                        fileProgress.setProgress(0, false);
+                        RefreshPage();
+                        if (count >= fileCount - 1) {
+                            fileProgress.setVisibility(View.GONE);
+                            allProgress.setVisibility(View.GONE);
+                        }
                     }
                 });
             }
@@ -268,7 +284,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     //listitem点击事件,打开文件夹，唤起详情页
     class itemOnClick implements FileListAdapter.OnClickListener {
         @Override
-        public void onItemClick( View view, int position) {
+        public void onItemClick(View view, int position) {
             final FileItem fileItem = fileList.get(position);
             if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
                 openPage(fileItem.getId());
@@ -306,7 +322,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
         }
 
         @Override
-        public boolean onItemLongClick( View view, int position) {
+        public boolean onItemLongClick(View view, int position) {
             return false;
         }
     }
@@ -419,5 +435,4 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
             }
         });
     }
-
 }

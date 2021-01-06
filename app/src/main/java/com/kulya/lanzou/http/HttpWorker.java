@@ -45,7 +45,6 @@ public class HttpWorker {
     private static final MediaType FROM_DATA = MediaType.parse("multipart/form-data");
 
     private HttpWorker() {
-
     }
 
     private static HttpWorker getInstance() {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.qmuiteam.qmui.widget.QMUIWindowInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
 
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
@@ -23,17 +23,24 @@
                 android:fitsSystemWindows="true" />
 
             <com.qmuiteam.qmui.widget.QMUIProgressBar
-                android:visibility="gone"
                 android:id="@+id/fileProgress"
-                app:qmui_max_value="100"
                 android:layout_width="match_parent"
-                android:layout_height="20dp" />
+                android:layout_height="20dp"
+                android:textSize="14dp"
+                android:visibility="gone"
+                app:qmui_background_color="@color/windowColor"
+                app:qmui_max_value="100"
+                app:qmui_progress_color="@color/colorPrimary"
+                app:qmui_stroke_width="2dp" />
 
             <com.qmuiteam.qmui.widget.QMUIProgressBar
-                android:visibility="gone"
                 android:id="@+id/allProgress"
                 android:layout_width="match_parent"
-                android:layout_height="20dp" />
+                android:layout_height="20dp"
+                android:textSize="14dp"
+                app:qmui_background_color="@color/windowColor"
+                app:qmui_progress_color="@color/colorPrimary"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fileList"

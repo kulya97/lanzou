@@ -4,7 +4,7 @@
 
     <!-- 网络访问权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 网络访问权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".util.Myapplication"
@@ -17,14 +17,13 @@
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/ChenJin"
-            />
+            android:theme="@style/ChenJin" />
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/NoTitle"
-            >
+            android:theme="@style/NoTitle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
