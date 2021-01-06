@@ -100,6 +100,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     //标题栏菜单点击事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        List<FileItem> mList = new ArrayList<>();
         switch (item.getItemId()) {
             case R.id.new_menu:
                 final QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(MainActivity.this);
@@ -138,8 +139,8 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                 adapter.notifyDataSetChanged();
                 break;
             case R.id.delete_menu:
-                fileList = adapter.getSelectedItem();
-                for (FileItem lis : fileList) {
+                mList = adapter.getSelectedItem();
+                for (FileItem lis : mList) {
                     if (lis.getIsCheck()) {
                         if (lis.getFileORHolder() == FileItem.ISFILE) {
                             deleteFile_(lis.getId());
@@ -153,8 +154,8 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                 }
                 break;
             case R.id.down_menu:
-                fileList = adapter.getSelectedItem();
-                for (FileItem lis : fileList) {
+                mList = adapter.getSelectedItem();
+                for (FileItem lis : mList) {
 
                     if (lis.getFileORHolder() == FileItem.ISFILE) {
                         if (lis.getIsCheck()) {
@@ -178,9 +179,9 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     private void initView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         fileListView.setLayoutManager(linearLayoutManager);
-        adapter = new FileListAdapter(R.layout.fileitem, fileList);
+        adapter = new FileListAdapter( fileList);
         adapter.setOnItemClickListener2(new itemOnClick());
-        adapter.setAnimationEnable(true);
+        //adapter.setAnimationEnable(true);
         fileListView.setAdapter(adapter);
         swipeRefreshLayout.setOnRefreshListener(this);
         setSupportActionBar(topbar);
@@ -218,14 +219,12 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                 HttpWorker.sendFiles(list, folder_id, new HttpWorker.UpLoadCallbackListener() {
                     @Override
                     public void onError(int count) {
-                        Log.d("7777777777771", "onError: ");
                         fileProgress.setProgress(0,false);
 
                     }
 
                     @Override
                     public void Progress(double progress) {
-                        Log.d("7777777777772", String.valueOf(progress));
                         fileProgress.setProgress((int) progress);
                     }
 
@@ -233,7 +232,6 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
                     public void onFinish(int count) {
                         allProgress.setProgress(count+1);
                         fileProgress.setProgress(0,false);
-                        Log.d("7777777777773", "onFinish(): ");
                     }
                 });
             }
@@ -270,9 +268,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
     //listitem点击事件,打开文件夹，唤起详情页
     class itemOnClick implements FileListAdapter.OnClickListener {
         @Override
-        public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
-            //  Toast.makeText(MainActivity.this,position,Toast.LENGTH_SHORT).show();
-            // Log.d("121313221", String.valueOf(position));
+        public void onItemClick( View view, int position) {
             final FileItem fileItem = fileList.get(position);
             if (fileItem.getFileORHolder() == FileItem.ISHOLDER) {
                 openPage(fileItem.getId());
@@ -310,7 +306,7 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
         }
 
         @Override
-        public boolean onItemLongClick(@NonNull BaseQuickAdapter adapter, @NonNull View view, int position) {
+        public boolean onItemLongClick( View view, int position) {
             return false;
         }
     }
@@ -331,9 +327,12 @@ public class MainActivity extends baseactivity implements SwipeRefreshLayout.OnR
             @Override
             public void onFinish(final List<FileItem> list) {
                 mdialog.dismiss();
+                fileList.clear();
                 fileList = list;
                 ischeck = false;
-                adapter.setList(fileList);
+                adapter = new FileListAdapter(fileList);
+                fileListView.setAdapter(adapter);
+                adapter.setOnItemClickListener2(new itemOnClick());
                 adapter.notifyDataSetChanged();
 
             }
