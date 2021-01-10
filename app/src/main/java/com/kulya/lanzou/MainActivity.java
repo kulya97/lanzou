@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         fileListView.setLayoutManager(linearLayoutManager);
         adapter = new FileListAdapter(fileList);
-        adapter.setOnItemClickListener2(new itemOnClick());
+        adapter.setOnItemClickListener(new itemOnClick());
         fileListView.setAdapter(adapter);
         swipeRefreshLayout.setOnRefreshListener(this);
         setSupportActionBar(topbar);
@@ -292,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 new QMUIBottomSheet.BottomListSheetBuilder(MainActivity.this)
                         .setGravityCenter(true)
                         .setAddCancelBtn(true)
+                        .addItem(fileItem.getFilename(),"name")
                         .addItem(fileItem.getFileUrl(), "url")
                         .addItem("下载", "down")
                         .addItem("删除文件", "delete")
@@ -314,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                                         break;
                                     default:
                                         break;
-
                                 }
                             }
                         }).build().show();
@@ -343,13 +343,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             public void onFinish(final List<FileItem> list) {
                 mdialog.dismiss();
-                fileList.clear();
                 fileList = list;
                 ischeck = false;
-                adapter = new FileListAdapter(fileList);
-                fileListView.setAdapter(adapter);
-                adapter.setOnItemClickListener2(new itemOnClick());
-                adapter.notifyDataSetChanged();
+                adapter.updateData(fileList);
 
             }
         });

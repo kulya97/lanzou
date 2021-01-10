@@ -9,12 +9,21 @@ package com.kulya.lanzou.listview;
 public class FileItem {
     public static final int ISFILE = 0;
     public static final int ISHOLDER = 1;
-    private String filename;
-    private int fileORHolder;
-    private String id;
-    private boolean isCheck=false;
-    private String downs;
-    private String time;
+    private String filename;//文件名
+    private int fileORHolder;//是否是文件
+    private String id;//id
+    private boolean isCheck = false;//选中状态
+    private String downs;//下载次数
+    private String time;//上传事件
+    private String sizes;//大小
+    private String fileUrl;//连接
+
+    public FileItem(String filename, int fileORHolder, String id) {
+        this.filename = filename;
+        this.fileORHolder = fileORHolder;
+        this.id = id;
+        isCheck = false;
+    }
 
     public String getDowns() {
         return downs;
@@ -40,8 +49,6 @@ public class FileItem {
         this.sizes = sizes;
     }
 
-    private String sizes;
-
 
     public String getFileUrl() {
         return fileUrl;
@@ -49,15 +56,6 @@ public class FileItem {
 
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
-    }
-
-    private String fileUrl;
-
-    public FileItem(String filename, int fileORHolder, String id) {
-        this.filename = filename;
-        this.fileORHolder = fileORHolder;
-        this.id = id;
-        isCheck = false;
     }
 
     public String getFilename() {

@@ -8,14 +8,11 @@ import android.net.Uri;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
-import com.kulya.lanzou.asyncTask.FileProgressRequestBody;
 import com.kulya.lanzou.listview.FileItem;
 import com.kulya.lanzou.util.Myapplication;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
